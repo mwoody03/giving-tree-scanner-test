@@ -62,6 +62,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .scanner-box {
       display: none;
       margin-top: 18px;
@@ -140,6 +145,7 @@
       text-align: center;
       border-radius: 8px;
       background: #f0f0f0;
+      line-height: 1.4;
     }
 
     .success {
@@ -173,8 +179,14 @@
     </div>
 
     <div class="scan-frame">
-      <video id="qrVideo" playsinline></video>
+
+      <video
+        id="qrVideo"
+        playsinline>
+      </video>
+
       <div class="scan-guide"></div>
+
     </div>
 
     <button
@@ -206,6 +218,10 @@
     from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
 
 
+  const API_URL =
+    "https://script.google.com/macros/s/AKfycbxZp0fNOC7QPDzvOrWCezJl8jKH0ZrSHGnmnEfnnuu44Sr8HrN9NFa-EZlz4GRrQVOF/exec";
+
+
   const video =
     document.getElementById("qrVideo");
 
@@ -234,6 +250,10 @@
     );
 
 
+  let scanBeingProcessed =
+    false;
+
+
   function saveCart() {
 
     localStorage.setItem(
@@ -256,7 +276,11 @@
           url.search
         );
 
-      for (const value of params.values()) {
+
+      for (
+        const value
+        of params.values()
+      ) {
 
         if (
           /^Angel\d+$/i.test(value)
@@ -269,12 +293,17 @@
             digits.padStart(3, "0");
 
         }
+
       }
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
       if (
-        /^Angel\d+$/i.test(scannedText)
+        /^Angel\d+$/i.test(
+          scannedText
+        )
       ) {
 
         const digits =
@@ -284,9 +313,12 @@
           digits.padStart(3, "0");
 
       }
+
     }
 
+
     return "";
+
   }
 
 
@@ -294,65 +326,218 @@
 
     angelList.innerHTML = "";
 
-    if (angels.length === 0) {
+
+    if (
+      angels.length === 0
+    ) {
 
       angelList.innerHTML =
         "<p>No Angels selected yet.</p>";
 
       return;
+
     }
 
 
-    angels.forEach(function(angel) {
+    angels.forEach(
+      function(angel) {
 
-      const row =
-        document.createElement("div");
+        const row =
+          document.createElement("div");
 
-      row.className =
-        "angel-row";
-
-
-      const label =
-        document.createElement("span");
-
-      label.textContent =
-        "✓ " + angel;
+        row.className =
+          "angel-row";
 
 
-      const removeButton =
-        document.createElement("button");
+        const label =
+          document.createElement("span");
 
-      removeButton.textContent =
-        "Remove";
-
-      removeButton.className =
-        "remove-button";
+        label.textContent =
+          "✓ " + angel;
 
 
-      removeButton.addEventListener(
-        "click",
-        function() {
+        const removeButton =
+          document.createElement("button");
 
-          angels =
-            angels.filter(
-              function(item) {
-                return item !== angel;
-              }
-            );
+        removeButton.textContent =
+          "Remove";
 
-          saveCart();
-          displayCart();
+        removeButton.className =
+          "remove-button";
+
+
+        removeButton.addEventListener(
+          "click",
+          function() {
+
+            angels =
+              angels.filter(
+                function(item) {
+
+                  return item !== angel;
+
+                }
+              );
+
+
+            saveCart();
+
+            displayCart();
+
+
+            status.textContent =
+              angel +
+              " removed from your list.";
+
+            status.className = "";
+
+          }
+        );
+
+
+        row.appendChild(
+          label
+        );
+
+        row.appendChild(
+          removeButton
+        );
+
+        angelList.appendChild(
+          row
+        );
+
+      }
+    );
+
+  }
+
+
+  function checkAvailability(
+    angel
+  ) {
+
+    return new Promise(
+      function(resolve, reject) {
+
+        const callbackName =
+          "givingTreeCallback_" +
+          Date.now() +
+          "_" +
+          Math.floor(
+            Math.random() * 100000
+          );
+
+
+        const script =
+          document.createElement(
+            "script"
+          );
+
+
+        const timeout =
+          setTimeout(
+            function() {
+
+              cleanup();
+
+              reject(
+                new Error(
+                  "The availability check timed out."
+                )
+              );
+
+            },
+            10000
+          );
+
+
+        function cleanup() {
+
+          clearTimeout(
+            timeout
+          );
+
+
+          if (
+            script.parentNode
+          ) {
+
+            script.parentNode
+              .removeChild(
+                script
+              );
+
+          }
+
+
+          try {
+
+            delete window[
+              callbackName
+            ];
+
+          }
+
+          catch (error) {
+
+            window[
+              callbackName
+            ] = undefined;
+
+          }
 
         }
-      );
 
 
-      row.appendChild(label);
-      row.appendChild(removeButton);
+        window[
+          callbackName
+        ] =
+          function(result) {
 
-      angelList.appendChild(row);
+            cleanup();
 
-    });
+            resolve(
+              result
+            );
+
+          };
+
+
+        script.onerror =
+          function() {
+
+            cleanup();
+
+            reject(
+              new Error(
+                "Unable to contact the Giving Tree database."
+              )
+            );
+
+          };
+
+
+        script.src =
+          API_URL +
+          "?mode=api" +
+          "&action=check" +
+          "&angel=" +
+          encodeURIComponent(
+            angel
+          ) +
+          "&callback=" +
+          encodeURIComponent(
+            callbackName
+          );
+
+
+        document.body.appendChild(
+          script
+        );
+
+      }
+    );
 
   }
 
@@ -363,15 +548,128 @@
 
       await scanner.stop();
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
       // Scanner may already be stopped.
 
     }
 
+
     scannerBox.classList.remove(
       "active"
     );
+
+  }
+
+
+  async function processScannedAngel(
+    angel
+  ) {
+
+    if (
+      angels.includes(
+        angel
+      )
+    ) {
+
+      await stopScannerAndClose();
+
+
+      status.textContent =
+        angel +
+        " is already in your list.";
+
+      status.className =
+        "error";
+
+      return;
+
+    }
+
+
+    status.textContent =
+      "Checking " +
+      angel +
+      " availability...";
+
+    status.className = "";
+
+
+    try {
+
+      const result =
+        await checkAvailability(
+          angel
+        );
+
+
+      await stopScannerAndClose();
+
+
+      if (
+        !result.valid
+      ) {
+
+        status.textContent =
+          result.message;
+
+        status.className =
+          "error";
+
+        return;
+
+      }
+
+
+      if (
+        !result.available
+      ) {
+
+        status.textContent =
+          result.message;
+
+        status.className =
+          "error";
+
+        return;
+
+      }
+
+
+      angels.push(
+        angel
+      );
+
+
+      saveCart();
+
+      displayCart();
+
+
+      status.textContent =
+        angel +
+        " is available and has been added.";
+
+      status.className =
+        "success";
+
+    }
+
+    catch (error) {
+
+      await stopScannerAndClose();
+
+
+      status.textContent =
+        "Unable to check this Angel. " +
+        error.message;
+
+      status.className =
+        "error";
+
+    }
 
   }
 
@@ -381,7 +679,22 @@
 
       video,
 
-      async function(scanResult) {
+      async function(
+        scanResult
+      ) {
+
+        if (
+          scanBeingProcessed
+        ) {
+
+          return;
+
+        }
+
+
+        scanBeingProcessed =
+          true;
+
 
         const angel =
           extractAngelCode(
@@ -391,54 +704,36 @@
 
         if (!angel) {
 
+          await stopScannerAndClose();
+
+
           status.textContent =
             "This is not a valid Giving Tree Angel QR code.";
 
           status.className =
             "error";
 
-          return;
 
-        }
-
-
-        await stopScannerAndClose();
-
-
-        if (
-          angels.includes(angel)
-        ) {
-
-          status.textContent =
-            angel +
-            " is already in your list.";
-
-          status.className =
-            "error";
+          scanBeingProcessed =
+            false;
 
           return;
 
         }
 
 
-        angels.push(
+        await processScannedAngel(
           angel
         );
 
-        saveCart();
-        displayCart();
 
-
-        status.textContent =
-          angel +
-          " added successfully.";
-
-        status.className =
-          "success";
+        scanBeingProcessed =
+          false;
 
       },
 
       {
+
         preferredCamera:
           "environment",
 
@@ -450,6 +745,7 @@
 
         returnDetailedScanResult:
           true
+
       }
 
     );
@@ -461,10 +757,15 @@
 
       try {
 
+        scanBeingProcessed =
+          false;
+
+
         status.textContent =
           "Starting scanner...";
 
         status.className = "";
+
 
         scannerBox.classList.add(
           "active"
@@ -479,11 +780,12 @@
 
       }
 
-      catch(error) {
+      catch (error) {
 
         scannerBox.classList.remove(
           "active"
         );
+
 
         status.textContent =
           "Scanner error: " +
@@ -503,6 +805,11 @@
     async function() {
 
       await stopScannerAndClose();
+
+
+      scanBeingProcessed =
+        false;
+
 
       status.textContent =
         "Scan cancelled.";
