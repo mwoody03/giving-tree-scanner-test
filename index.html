@@ -1,69 +1,145 @@
-function doGet(e) {
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
 
-  const mode = e.parameter.mode || "claim";
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Giving Tree Scanner Test</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 30px;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    #reader {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      background: #f0f0f0;
+      border-radius: 8px;
+      word-break: break-word;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>Giving Tree Scanner Test</h1>
+
+    <p>
+      Allow camera access, then point your phone
+      at one of the Giving Tree Angel QR codes.
+    </p>
+
+    <div id="reader"></div>
+
+    <div id="result">
+      Waiting for QR scan...
+    </div>
+
+  </div>
+
+</div>
 
 
-  // SCANNER TEST PAGE
-  if (mode === "scanner") {
+<script>
 
-    const template =
-      HtmlService.createTemplateFromFile(
-        "ScannerTest"
-      );
+  function onScanSuccess(decodedText) {
 
-    const output =
-      template.evaluate()
-        .setTitle("QR Scanner Test");
+    document.getElementById(
+      "result"
+    ).innerText =
+      "QR READ SUCCESSFULLY:\n\n" +
+      decodedText;
 
-    output.addMetaTag(
-      "viewport",
-      "width=device-width, initial-scale=1"
-    );
-
-    return output;
   }
 
 
-  // RETURN PAGE
-  if (mode === "return") {
+  function onScanFailure(error) {
 
-    const template =
-      HtmlService.createTemplateFromFile(
-        "ReturnPage"
-      );
+    // Normal while camera searches for QR code.
 
-    const output =
-      template.evaluate()
-        .setTitle("Giving Tree Return");
-
-    output.addMetaTag(
-      "viewport",
-      "width=device-width, initial-scale=1"
-    );
-
-    return output;
   }
 
 
-  // CLAIM PAGE
-  const angel =
-    e.parameter.angel || "";
+  const scanner =
+    new Html5QrcodeScanner(
+      "reader",
+      {
+        fps: 10,
 
-  const template =
-    HtmlService.createTemplateFromFile(
-      "ClaimPage"
+        qrbox: {
+          width: 250,
+          height: 250
+        },
+
+        rememberLastUsedCamera: true,
+
+        supportedScanTypes: [
+          Html5QrcodeScanType.SCAN_TYPE_CAMERA
+        ]
+      },
+      false
     );
 
-  template.angel = angel;
 
-  const output =
-    template.evaluate()
-      .setTitle("Giving Tree Claim");
-
-  output.addMetaTag(
-    "viewport",
-    "width=device-width, initial-scale=1"
+  scanner.render(
+    onScanSuccess,
+    onScanFailure
   );
 
-  return output;
-}
+</script>
+
+</body>
+</html>
