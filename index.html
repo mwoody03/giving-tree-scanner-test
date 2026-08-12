@@ -87,6 +87,10 @@
       margin-bottom: 10px;
     }
 
+    .scan-frame {
+      position: relative;
+    }
+
     video {
       width: 100%;
       display: block;
@@ -94,10 +98,6 @@
       background: #000;
       min-height: 260px;
       object-fit: cover;
-    }
-
-    .scan-frame {
-      position: relative;
     }
 
     .scan-guide {
@@ -192,7 +192,7 @@
     }
 
     .success-screen h2 {
-      font-size: 26px;
+      font-size: 28px;
     }
   </style>
 </head>
@@ -297,14 +297,16 @@
   </div>
 
 
-  <div id="successScreen" class="success-screen">
+  <div
+    id="successScreen"
+    class="success-screen">
 
     <h2>Claim Complete</h2>
 
     <p id="successMessage"></p>
 
     <p>
-      Thank you for sponsoring through the Giving Tree.
+      Thank you for supporting the Giving Tree.
     </p>
 
     <button id="startOverButton">
@@ -479,21 +481,27 @@
       function(angel) {
 
         const row =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
 
         row.className =
           "angel-row";
 
 
         const label =
-          document.createElement("span");
+          document.createElement(
+            "span"
+          );
 
         label.textContent =
           "✓ " + angel;
 
 
         const removeButton =
-          document.createElement("button");
+          document.createElement(
+            "button"
+          );
 
         removeButton.textContent =
           "Remove";
@@ -580,8 +588,14 @@
   }
 
 
-  function jsonpRequest(
-    params
+  /*
+  =========================================
+  ORIGINAL WORKING AVAILABILITY CHECK
+  =========================================
+  */
+
+  function checkAvailability(
+    angel
   ) {
 
     return new Promise(
@@ -610,7 +624,7 @@
 
               reject(
                 new Error(
-                  "The Giving Tree database did not respond."
+                  "The availability check timed out."
                 )
               );
 
@@ -685,22 +699,18 @@
           };
 
 
-        const searchParams =
-          new URLSearchParams(
-            params
-          );
-
-
-        searchParams.set(
-          "callback",
-          callbackName
-        );
-
-
         script.src =
           API_URL +
-          "?" +
-          searchParams.toString();
+          "?mode=api" +
+          "&action=check" +
+          "&angel=" +
+          encodeURIComponent(
+            angel
+          ) +
+          "&callback=" +
+          encodeURIComponent(
+            callbackName
+          );
 
 
         document.body.appendChild(
@@ -713,15 +723,137 @@
   }
 
 
-  function checkAvailability(
-    angel
+  /*
+  =========================================
+  CLAIM STATUS CHECK
+  =========================================
+  */
+
+  function checkSubmissionStatus(
+    token
   ) {
 
-    return jsonpRequest({
-      mode: "api",
-      action: "check",
-      angel: angel
-    });
+    return new Promise(
+      function(resolve, reject) {
+
+        const callbackName =
+          "givingTreeStatus_" +
+          Date.now() +
+          "_" +
+          Math.floor(
+            Math.random() * 100000
+          );
+
+
+        const script =
+          document.createElement(
+            "script"
+          );
+
+
+        const timeout =
+          setTimeout(
+            function() {
+
+              cleanup();
+
+              reject(
+                new Error(
+                  "Claim confirmation timed out."
+                )
+              );
+
+            },
+            10000
+          );
+
+
+        function cleanup() {
+
+          clearTimeout(
+            timeout
+          );
+
+
+          if (
+            script.parentNode
+          ) {
+
+            script.parentNode
+              .removeChild(
+                script
+              );
+
+          }
+
+
+          try {
+
+            delete window[
+              callbackName
+            ];
+
+          }
+
+          catch (error) {
+
+            window[
+              callbackName
+            ] = undefined;
+
+          }
+
+        }
+
+
+        window[
+          callbackName
+        ] =
+          function(result) {
+
+            cleanup();
+
+            resolve(
+              result
+            );
+
+          };
+
+
+        script.onerror =
+          function() {
+
+            cleanup();
+
+            reject(
+              new Error(
+                "Unable to confirm the claim."
+              )
+            );
+
+          };
+
+
+        script.src =
+          API_URL +
+          "?mode=api" +
+          "&action=status" +
+          "&token=" +
+          encodeURIComponent(
+            token
+          ) +
+          "&callback=" +
+          encodeURIComponent(
+            callbackName
+          );
+
+
+        document.body.appendChild(
+          script
+        );
+
+      }
+    );
 
   }
 
@@ -739,19 +871,6 @@
   }
 
 
-  async function getSubmissionStatus(
-    token
-  ) {
-
-    return jsonpRequest({
-      mode: "api",
-      action: "status",
-      token: token
-    });
-
-  }
-
-
   async function waitForSubmission(
     token
   ) {
@@ -763,7 +882,7 @@
     ) {
 
       const result =
-        await getSubmissionStatus(
+        await checkSubmissionStatus(
           token
         );
 
@@ -848,7 +967,7 @@
     );
 
 
-    return waitForSubmission(
+    return await waitForSubmission(
       token
     );
 
@@ -920,7 +1039,21 @@
 
 
       if (
-        !result.valid ||
+        !result.valid
+      ) {
+
+        status.textContent =
+          result.message;
+
+        status.className =
+          "error";
+
+        return;
+
+      }
+
+
+      if (
         !result.available
       ) {
 
@@ -1030,7 +1163,6 @@
       },
 
       {
-
         preferredCamera:
           "environment",
 
@@ -1042,7 +1174,6 @@
 
         returnDetailedScanResult:
           true
-
       }
 
     );
@@ -1138,8 +1269,10 @@
 
       displayReview();
 
+
       claimForm.style.display =
         "block";
+
 
       claimForm.scrollIntoView({
         behavior: "smooth"
@@ -1291,6 +1424,7 @@
         mainScreen.style.display =
           "none";
 
+
         successScreen.style.display =
           "block";
 
@@ -1344,6 +1478,7 @@
 
       successScreen.style.display =
         "none";
+
 
       mainScreen.style.display =
         "block";
