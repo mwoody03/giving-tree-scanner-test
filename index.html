@@ -65,12 +65,20 @@
     #result {
       margin-top: 18px;
       padding: 14px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       text-align: center;
       background: #f0f0f0;
       border-radius: 8px;
       word-break: break-word;
+    }
+
+    .success {
+      background: #eef8ee;
+    }
+
+    .error {
+      background: #fdecec;
     }
   </style>
 </head>
@@ -106,21 +114,61 @@
 
 
   const video =
-    document.getElementById(
-      "qrVideo"
-    );
-
+    document.getElementById("qrVideo");
 
   const result =
-    document.getElementById(
-      "result"
-    );
-
+    document.getElementById("result");
 
   const startButton =
-    document.getElementById(
-      "startButton"
-    );
+    document.getElementById("startButton");
+
+
+  function extractAngelCode(scannedText) {
+
+    try {
+
+      const url =
+        new URL(scannedText);
+
+      const params =
+        new URLSearchParams(
+          url.search
+        );
+
+      for (const value of params.values()) {
+
+        if (
+          /^Angel\d+$/i.test(value)
+        ) {
+
+          const digits =
+            value.replace(/\D/g, "");
+
+          return "Angel" +
+            digits.padStart(3, "0");
+
+        }
+      }
+
+    } catch (error) {
+
+      if (
+        /^Angel\d+$/i.test(
+          scannedText
+        )
+      ) {
+
+        const digits =
+          scannedText.replace(/\D/g, "");
+
+        return "Angel" +
+          digits.padStart(3, "0");
+
+      }
+    }
+
+    return "";
+  }
 
 
   const scanner =
@@ -130,12 +178,33 @@
 
       function(scanResult) {
 
-        result.textContent =
-          "QR READ SUCCESSFULLY:\n\n" +
-          scanResult.data;
+        const angel =
+          extractAngelCode(
+            scanResult.data
+          );
 
 
         scanner.stop();
+
+
+        if (angel) {
+
+          result.textContent =
+            angel +
+            " scanned successfully.";
+
+          result.className =
+            "success";
+
+        } else {
+
+          result.textContent =
+            "This is not a valid Giving Tree Angel QR code.";
+
+          result.className =
+            "error";
+
+        }
 
       },
 
@@ -165,6 +234,8 @@
         result.textContent =
           "Starting scanner...";
 
+        result.className = "";
+
 
         await scanner.start();
 
@@ -179,6 +250,9 @@
         result.textContent =
           "Scanner error: " +
           error;
+
+        result.className =
+          "error";
 
       }
 
