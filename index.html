@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Giving Tree Scanner Test</title>
+  <title>Giving Tree</title>
 
   <style>
     * {
@@ -36,6 +36,12 @@
     h1 {
       text-align: center;
       font-size: 30px;
+      margin-top: 0;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-top: 24px;
     }
 
     p {
@@ -45,9 +51,10 @@
 
     video {
       width: 100%;
-      margin-top: 18px;
+      margin-top: 16px;
       border-radius: 10px;
       background: #000;
+      display: none;
     }
 
     button {
@@ -60,25 +67,44 @@
       border-radius: 10px;
       border: 1px solid #aaa;
       background: white;
+      cursor: pointer;
     }
 
-    #result {
-      margin-top: 18px;
-      padding: 14px;
+    .angel-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #ddd;
       font-size: 20px;
       font-weight: bold;
+    }
+
+    .remove-button {
+      width: auto;
+      min-height: 40px;
+      margin: 0;
+      padding: 8px 12px;
+      font-size: 15px;
+    }
+
+    #status {
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
       text-align: center;
-      background: #f0f0f0;
       border-radius: 8px;
-      word-break: break-word;
+      background: #f0f0f0;
     }
 
     .success {
-      background: #eef8ee;
+      background: #eef8ee !important;
     }
 
     .error {
-      background: #fdecec;
+      background: #fdecec !important;
     }
   </style>
 </head>
@@ -87,22 +113,29 @@
 
 <div class="card">
 
-  <h1>Giving Tree Scanner Test</h1>
+  <h1>Giving Tree</h1>
 
   <p>
-    Tap Start Scanner, allow camera access,
-    then point the back camera at an Angel QR code.
+    Scan each Angel you would like to sponsor.
   </p>
 
-  <button id="startButton">
-    Start Scanner
+  <button id="scanButton">
+    Scan Angel
   </button>
 
   <video id="qrVideo" playsinline></video>
 
-  <div id="result">
-    Scanner not started.
+  <div id="status">
+    Ready to scan.
   </div>
+
+  <h2>Your Angels</h2>
+
+  <div id="angelList"></div>
+
+  <button id="completeButton">
+    Complete Claim
+  </button>
 
 </div>
 
@@ -116,11 +149,33 @@
   const video =
     document.getElementById("qrVideo");
 
-  const result =
-    document.getElementById("result");
+  const status =
+    document.getElementById("status");
 
-  const startButton =
-    document.getElementById("startButton");
+  const scanButton =
+    document.getElementById("scanButton");
+
+  const completeButton =
+    document.getElementById("completeButton");
+
+  const angelList =
+    document.getElementById("angelList");
+
+
+  let angels =
+    JSON.parse(
+      localStorage.getItem("givingTreeCart") || "[]"
+    );
+
+
+  function saveCart() {
+
+    localStorage.setItem(
+      "givingTreeCart",
+      JSON.stringify(angels)
+    );
+
+  }
 
 
   function extractAngelCode(scannedText) {
@@ -153,9 +208,7 @@
     } catch (error) {
 
       if (
-        /^Angel\d+$/i.test(
-          scannedText
-        )
+        /^Angel\d+$/i.test(scannedText)
       ) {
 
         const digits =
@@ -168,6 +221,73 @@
     }
 
     return "";
+  }
+
+
+  function displayCart() {
+
+    angelList.innerHTML = "";
+
+    if (angels.length === 0) {
+
+      angelList.innerHTML =
+        "<p>No Angels selected yet.</p>";
+
+      return;
+    }
+
+
+    angels.forEach(function(angel) {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "angel-row";
+
+
+      const label =
+        document.createElement("span");
+
+      label.textContent =
+        "✓ " + angel;
+
+
+      const removeButton =
+        document.createElement("button");
+
+      removeButton.textContent =
+        "Remove";
+
+      removeButton.className =
+        "remove-button";
+
+
+      removeButton.addEventListener(
+        "click",
+        function() {
+
+          angels =
+            angels.filter(
+              function(item) {
+                return item !== angel;
+              }
+            );
+
+          saveCart();
+          displayCart();
+
+        }
+      );
+
+
+      row.appendChild(label);
+      row.appendChild(removeButton);
+
+      angelList.appendChild(row);
+
+    });
+
   }
 
 
@@ -186,25 +306,53 @@
 
         scanner.stop();
 
+        video.style.display =
+          "none";
 
-        if (angel) {
 
-          result.textContent =
-            angel +
-            " scanned successfully.";
+        if (!angel) {
 
-          result.className =
-            "success";
-
-        } else {
-
-          result.textContent =
+          status.textContent =
             "This is not a valid Giving Tree Angel QR code.";
 
-          result.className =
+          status.className =
             "error";
 
+          return;
+
         }
+
+
+        if (
+          angels.includes(angel)
+        ) {
+
+          status.textContent =
+            angel +
+            " is already in your list.";
+
+          status.className =
+            "error";
+
+          return;
+
+        }
+
+
+        angels.push(
+          angel
+        );
+
+        saveCart();
+        displayCart();
+
+
+        status.textContent =
+          angel +
+          " added successfully.";
+
+        status.className =
+          "success";
 
       },
 
@@ -225,39 +373,79 @@
     );
 
 
-  startButton.addEventListener(
+  scanButton.addEventListener(
     "click",
     async function() {
 
       try {
 
-        result.textContent =
+        status.textContent =
           "Starting scanner...";
 
-        result.className = "";
+        status.className = "";
+
+        video.style.display =
+          "block";
 
 
         await scanner.start();
 
 
-        result.textContent =
+        status.textContent =
           "Camera ready. Scan an Angel QR.";
 
       }
 
       catch(error) {
 
-        result.textContent =
+        status.textContent =
           "Scanner error: " +
           error;
 
-        result.className =
+        status.className =
           "error";
+
+        video.style.display =
+          "none";
 
       }
 
     }
   );
+
+
+  completeButton.addEventListener(
+    "click",
+    function() {
+
+      if (
+        angels.length === 0
+      ) {
+
+        status.textContent =
+          "Please scan at least one Angel.";
+
+        status.className =
+          "error";
+
+        return;
+
+      }
+
+
+      status.textContent =
+        "You currently have " +
+        angels.length +
+        " Angel(s) selected.";
+
+      status.className =
+        "success";
+
+    }
+  );
+
+
+  displayCart();
 
 </script>
 
