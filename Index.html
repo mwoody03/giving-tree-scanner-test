@@ -1,1 +1,69 @@
+function doGet(e) {
 
+  const mode = e.parameter.mode || "claim";
+
+
+  // SCANNER TEST PAGE
+  if (mode === "scanner") {
+
+    const template =
+      HtmlService.createTemplateFromFile(
+        "ScannerTest"
+      );
+
+    const output =
+      template.evaluate()
+        .setTitle("QR Scanner Test");
+
+    output.addMetaTag(
+      "viewport",
+      "width=device-width, initial-scale=1"
+    );
+
+    return output;
+  }
+
+
+  // RETURN PAGE
+  if (mode === "return") {
+
+    const template =
+      HtmlService.createTemplateFromFile(
+        "ReturnPage"
+      );
+
+    const output =
+      template.evaluate()
+        .setTitle("Giving Tree Return");
+
+    output.addMetaTag(
+      "viewport",
+      "width=device-width, initial-scale=1"
+    );
+
+    return output;
+  }
+
+
+  // CLAIM PAGE
+  const angel =
+    e.parameter.angel || "";
+
+  const template =
+    HtmlService.createTemplateFromFile(
+      "ClaimPage"
+    );
+
+  template.angel = angel;
+
+  const output =
+    template.evaluate()
+      .setTitle("Giving Tree Claim");
+
+  output.addMetaTag(
+    "viewport",
+    "width=device-width, initial-scale=1"
+  );
+
+  return output;
+}
