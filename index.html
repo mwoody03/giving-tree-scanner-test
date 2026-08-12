@@ -12,7 +12,6 @@
 
 <title>Giving Tree</title>
 
-
 <style>
 
 * {
@@ -171,10 +170,56 @@ input {
   background: #fdecec !important;
 }
 
+.processing-box {
+  display: none;
+  margin-top: 22px;
+  padding: 22px;
+  text-align: center;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.spinner {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 18px;
+  border: 6px solid #ddd;
+  border-top-color: #555;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.processing-message {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.processing-note {
+  margin-top: 10px;
+  font-size: 17px;
+}
+
 .success-screen {
   display: none;
   text-align: center;
   padding: 20px 0;
+}
+
+.success-screen h2 {
+  font-size: 30px;
+}
+
+.success-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
 }
 
 </style>
@@ -183,7 +228,6 @@ input {
 
 
 <body>
-
 
 <div class="card">
 
@@ -211,7 +255,6 @@ Scan Angel
 Point the camera at the Angel QR code.
 </p>
 
-
 <div class="scan-frame">
 
 <video
@@ -222,7 +265,6 @@ Point the camera at the Angel QR code.
 <div class="scan-guide"></div>
 
 </div>
-
 
 <button id="cancelScanButton">
 Cancel Scan
@@ -297,6 +339,25 @@ Claim My Angels
 </button>
 
 
+<div
+  id="processingBox"
+  class="processing-box">
+
+<div class="spinner"></div>
+
+<div
+  id="processingMessage"
+  class="processing-message">
+Submitting your claim...
+</div>
+
+<div class="processing-note">
+Please keep this page open while we confirm your Angels.
+</div>
+
+</div>
+
+
 </div>
 
 </div>
@@ -307,7 +368,11 @@ Claim My Angels
   id="successScreen"
   class="success-screen">
 
-<h2>Claim Complete</h2>
+<div class="success-icon">
+✓
+</div>
+
+<h2>Claim Complete!</h2>
 
 <p id="successMessage"></p>
 
@@ -366,6 +431,12 @@ document.getElementById("reviewList");
 
 const submitClaimButton =
 document.getElementById("submitClaimButton");
+
+const processingBox =
+document.getElementById("processingBox");
+
+const processingMessage =
+document.getElementById("processingMessage");
 
 const mainScreen =
 document.getElementById("mainScreen");
@@ -1265,7 +1336,7 @@ async function waitForClaim(
 
   for (
     let attempt = 0;
-    attempt < 30;
+    attempt < 60;
     attempt++
   ) {
 
@@ -1295,11 +1366,31 @@ async function waitForClaim(
     }
 
 
+    if (
+      attempt === 2
+    ) {
+
+      processingMessage.textContent =
+      "Almost done. We are confirming your Angels...";
+
+    }
+
+
+    if (
+      attempt === 6
+    ) {
+
+      processingMessage.textContent =
+      "Your claim is still processing. Please keep this page open.";
+
+    }
+
+
     await new Promise(
       resolve =>
       setTimeout(
         resolve,
-        1000
+        500
       )
     );
 
@@ -1307,7 +1398,7 @@ async function waitForClaim(
 
 
   throw new Error(
-    "The claim was sent, but confirmation is taking longer than expected."
+    "Your claim was sent, but confirmation is taking longer than expected."
   );
 
 }
@@ -1375,12 +1466,18 @@ async function() {
   true;
 
 
-  status.textContent =
-  "Submitting your claim. Please wait...";
+  processingBox.style.display =
+  "block";
 
 
-  status.className =
-  "";
+  processingMessage.textContent =
+  "Submitting your claim...";
+
+
+  processingBox.scrollIntoView({
+    behavior:
+    "smooth"
+  });
 
 
   const token =
@@ -1418,6 +1515,10 @@ async function() {
       !result.success
     ) {
 
+      processingBox.style.display =
+      "none";
+
+
       status.textContent =
       result.message;
 
@@ -1453,6 +1554,10 @@ async function() {
     displayCart();
 
 
+    processingBox.style.display =
+    "none";
+
+
     mainScreen.style.display =
     "none";
 
@@ -1469,6 +1574,10 @@ async function() {
   }
 
   catch (error) {
+
+    processingBox.style.display =
+    "none";
+
 
     status.textContent =
     error.message;
@@ -1504,6 +1613,10 @@ function() {
 
 
   claimForm.style.display =
+  "none";
+
+
+  processingBox.style.display =
   "none";
 
 
