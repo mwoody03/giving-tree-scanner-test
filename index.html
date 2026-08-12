@@ -10,8 +10,6 @@
 
   <title>Giving Tree Scanner Test</title>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -30,9 +28,9 @@
       max-width: 600px;
       margin: 0 auto;
       background: white;
-      padding: 20px;
-      border-radius: 14px;
       border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 20px;
     }
 
     h1 {
@@ -45,20 +43,23 @@
       line-height: 1.4;
     }
 
+    video {
+      width: 100%;
+      margin-top: 18px;
+      border-radius: 10px;
+      background: #000;
+    }
+
     button {
       width: 100%;
       min-height: 58px;
       padding: 14px;
+      margin-top: 16px;
       font-size: 20px;
       font-weight: bold;
       border-radius: 10px;
       border: 1px solid #aaa;
       background: white;
-    }
-
-    #reader {
-      width: 100%;
-      margin-top: 18px;
     }
 
     #result {
@@ -81,15 +82,15 @@
   <h1>Giving Tree Scanner Test</h1>
 
   <p>
-    Tap the button below, allow camera access,
+    Tap Start Scanner, allow camera access,
     then point the back camera at an Angel QR code.
   </p>
 
   <button id="startButton">
-    Start QR Scanner
+    Start Scanner
   </button>
 
-  <div id="reader"></div>
+  <video id="qrVideo" playsinline></video>
 
   <div id="result">
     Scanner not started.
@@ -98,94 +99,91 @@
 </div>
 
 
-<script>
+<script type="module">
 
-  const qrScanner =
-    new Html5Qrcode("reader");
+  import QrScanner
+    from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
 
 
-  document
-    .getElementById("startButton")
-    .addEventListener(
-      "click",
-      function() {
+  const video =
+    document.getElementById(
+      "qrVideo"
+    );
 
-        const result =
-          document.getElementById("result");
+
+  const result =
+    document.getElementById(
+      "result"
+    );
+
+
+  const startButton =
+    document.getElementById(
+      "startButton"
+    );
+
+
+  const scanner =
+    new QrScanner(
+
+      video,
+
+      function(scanResult) {
+
+        result.textContent =
+          "QR READ SUCCESSFULLY:\n\n" +
+          scanResult.data;
+
+
+        scanner.stop();
+
+      },
+
+      {
+        preferredCamera:
+          "environment",
+
+        highlightScanRegion:
+          true,
+
+        highlightCodeOutline:
+          true,
+
+        returnDetailedScanResult:
+          true
+      }
+
+    );
+
+
+  startButton.addEventListener(
+    "click",
+    async function() {
+
+      try {
+
+        result.textContent =
+          "Starting scanner...";
+
+
+        await scanner.start();
 
 
         result.textContent =
-          "Starting back camera...";
-
-
-        qrScanner.start(
-
-          {
-            facingMode: "environment"
-          },
-
-          {
-            fps: 10,
-
-            qrbox: function(
-              viewfinderWidth,
-              viewfinderHeight
-            ) {
-
-              const size =
-                Math.floor(
-                  Math.min(
-                    viewfinderWidth,
-                    viewfinderHeight
-                  ) * 0.75
-                );
-
-              return {
-                width: size,
-                height: size
-              };
-            },
-
-            experimentalFeatures: {
-              useBarCodeDetectorIfSupported: false
-            }
-          },
-
-
-          function(decodedText) {
-
-            result.textContent =
-              "QR READ SUCCESSFULLY:\n\n" +
-              decodedText;
-
-
-            qrScanner
-              .stop()
-              .catch(function() {});
-
-          },
-
-
-          function(errorMessage) {
-
-            // Ignore normal scanning misses.
-
-          }
-
-        )
-
-        .catch(
-          function(error) {
-
-            result.textContent =
-              "Camera error: " +
-              error;
-
-          }
-        );
+          "Camera ready. Scan an Angel QR.";
 
       }
-    );
+
+      catch(error) {
+
+        result.textContent =
+          "Scanner error: " +
+          error;
+
+      }
+
+    }
+  );
 
 </script>
 
