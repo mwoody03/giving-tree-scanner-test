@@ -49,14 +49,6 @@
       line-height: 1.4;
     }
 
-    video {
-      width: 100%;
-      margin-top: 16px;
-      border-radius: 10px;
-      background: #000;
-      display: none;
-    }
-
     button {
       width: 100%;
       min-height: 58px;
@@ -68,6 +60,57 @@
       border: 1px solid #aaa;
       background: white;
       cursor: pointer;
+    }
+
+    .scanner-box {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    .scanner-box.active {
+      display: block;
+    }
+
+    .scanner-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    video {
+      width: 100%;
+      display: block;
+      border-radius: 10px;
+      background: #000;
+      min-height: 260px;
+      object-fit: cover;
+    }
+
+    .scan-frame {
+      position: relative;
+    }
+
+    .scan-guide {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 70%;
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border: 3px solid white;
+      border-radius: 12px;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.18);
+    }
+
+    .cancel-button {
+      min-height: 48px;
+      font-size: 17px;
     }
 
     .angel-row {
@@ -123,7 +166,24 @@
     Scan Angel
   </button>
 
-  <video id="qrVideo" playsinline></video>
+  <div id="scannerBox" class="scanner-box">
+
+    <div class="scanner-title">
+      Point the camera at the Angel QR code
+    </div>
+
+    <div class="scan-frame">
+      <video id="qrVideo" playsinline></video>
+      <div class="scan-guide"></div>
+    </div>
+
+    <button
+      id="cancelScanButton"
+      class="cancel-button">
+      Cancel Scan
+    </button>
+
+  </div>
 
   <div id="status">
     Ready to scan.
@@ -154,6 +214,12 @@
 
   const scanButton =
     document.getElementById("scanButton");
+
+  const cancelScanButton =
+    document.getElementById("cancelScanButton");
+
+  const scannerBox =
+    document.getElementById("scannerBox");
 
   const completeButton =
     document.getElementById("completeButton");
@@ -291,23 +357,36 @@
   }
 
 
+  async function stopScannerAndClose() {
+
+    try {
+
+      await scanner.stop();
+
+    } catch (error) {
+
+      // Scanner may already be stopped.
+
+    }
+
+    scannerBox.classList.remove(
+      "active"
+    );
+
+  }
+
+
   const scanner =
     new QrScanner(
 
       video,
 
-      function(scanResult) {
+      async function(scanResult) {
 
         const angel =
           extractAngelCode(
             scanResult.data
           );
-
-
-        scanner.stop();
-
-        video.style.display =
-          "none";
 
 
         if (!angel) {
@@ -321,6 +400,9 @@
           return;
 
         }
+
+
+        await stopScannerAndClose();
 
 
         if (
@@ -384,8 +466,9 @@
 
         status.className = "";
 
-        video.style.display =
-          "block";
+        scannerBox.classList.add(
+          "active"
+        );
 
 
         await scanner.start();
@@ -398,6 +481,10 @@
 
       catch(error) {
 
+        scannerBox.classList.remove(
+          "active"
+        );
+
         status.textContent =
           "Scanner error: " +
           error;
@@ -405,10 +492,22 @@
         status.className =
           "error";
 
-        video.style.display =
-          "none";
-
       }
+
+    }
+  );
+
+
+  cancelScanButton.addEventListener(
+    "click",
+    async function() {
+
+      await stopScannerAndClose();
+
+      status.textContent =
+        "Scan cancelled.";
+
+      status.className = "";
 
     }
   );
