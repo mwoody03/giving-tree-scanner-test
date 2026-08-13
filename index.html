@@ -212,11 +212,9 @@ input {
 }
 
 @keyframes spin {
-
   to {
     transform: rotate(360deg);
   }
-
 }
 
 .processing-message {
@@ -260,9 +258,7 @@ input {
 
 <div class="card">
 
-
 <div id="mainScreen">
-
 
 <h1>Giving Tree</h1>
 
@@ -323,7 +319,6 @@ Continue to Sponsor Information
   id="claimForm"
   class="claim-form">
 
-
 <h2>Sponsor Information</h2>
 
 <p>
@@ -339,6 +334,7 @@ Full Name
   id="sponsorName"
   type="text"
   autocomplete="name"
+  required
 >
 
 
@@ -350,6 +346,7 @@ Email Address
   id="sponsorEmail"
   type="email"
   autocomplete="email"
+  required
 >
 
 
@@ -361,6 +358,7 @@ Phone Number
   id="sponsorPhone"
   type="tel"
   autocomplete="tel"
+  required
 >
 
 
@@ -398,7 +396,6 @@ Please keep this page open while we confirm your Angels.
 
 </div>
 
-
 </div>
 
 </div>
@@ -433,12 +430,10 @@ Sponsor Another Angel
 
 </div>
 
-
 </div>
 
 
 <script type="module">
-
 
 import QrScanner
 from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
@@ -451,62 +446,47 @@ const API_URL =
 const video =
 document.getElementById("qrVideo");
 
-
 const status =
 document.getElementById("status");
-
 
 const scannerBox =
 document.getElementById("scannerBox");
 
-
 const scanButton =
 document.getElementById("scanButton");
-
 
 const cancelScanButton =
 document.getElementById("cancelScanButton");
 
-
 const angelList =
 document.getElementById("angelList");
-
 
 const completeButton =
 document.getElementById("completeButton");
 
-
 const claimForm =
 document.getElementById("claimForm");
-
 
 const reviewList =
 document.getElementById("reviewList");
 
-
 const submitClaimButton =
 document.getElementById("submitClaimButton");
-
 
 const processingBox =
 document.getElementById("processingBox");
 
-
 const processingMessage =
 document.getElementById("processingMessage");
-
 
 const mainScreen =
 document.getElementById("mainScreen");
 
-
 const successScreen =
 document.getElementById("successScreen");
 
-
 const successMessage =
 document.getElementById("successMessage");
-
 
 const startOverButton =
 document.getElementById("startOverButton");
@@ -522,6 +502,94 @@ JSON.parse(
 
 let scanBeingProcessed =
 false;
+
+
+let urlAngelBeingProcessed =
+false;
+
+
+
+function normalizeAngel(value) {
+
+  const text =
+  String(value || "").trim();
+
+
+  const match =
+  text.match(
+    /^Angel0*(\d+)$/i
+  );
+
+
+  if (!match) {
+    return "";
+  }
+
+
+  return "Angel" +
+  String(
+    parseInt(
+      match[1],
+      10
+    )
+  ).padStart(
+    3,
+    "0"
+  );
+
+}
+
+
+
+function getAngelFromPageUrl() {
+
+  const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+  const angel =
+  params.get(
+    "angel"
+  );
+
+
+  if (!angel) {
+    return "";
+  }
+
+
+  return normalizeAngel(
+    angel
+  );
+
+}
+
+
+
+function removeAngelFromPageUrl() {
+
+  const url =
+  new URL(
+    window.location.href
+  );
+
+
+  url.searchParams.delete(
+    "angel"
+  );
+
+
+  window.history.replaceState(
+    {},
+    "",
+    url.pathname +
+    url.search +
+    url.hash
+  );
+
+}
 
 
 
@@ -569,25 +637,14 @@ function extractAngelCode(
       of url.searchParams.values()
     ) {
 
-      if (
-        /^Angel\d+$/i.test(
-          value
-        )
-      ) {
-
-        const digits =
-        value.replace(
-          /\D/g,
-          ""
-        );
+      const angel =
+      normalizeAngel(
+        value
+      );
 
 
-        return "Angel" +
-        digits.padStart(
-          3,
-          "0"
-        );
-
+      if (angel) {
+        return angel;
       }
 
     }
@@ -596,27 +653,14 @@ function extractAngelCode(
 
   catch (error) {
 
-    if (
-      /^Angel\d+$/i.test(
-        String(
-          scannedText || ""
-        )
-      )
-    ) {
-
-      const digits =
-      scannedText.replace(
-        /\D/g,
-        ""
-      );
+    const angel =
+    normalizeAngel(
+      scannedText
+    );
 
 
-      return "Angel" +
-      digits.padStart(
-        3,
-        "0"
-      );
-
+    if (angel) {
+      return angel;
     }
 
   }
@@ -646,6 +690,10 @@ function displayCart() {
     true;
 
 
+    scanButton.textContent =
+    "Scan an Angel";
+
+
     return;
 
   }
@@ -653,6 +701,10 @@ function displayCart() {
 
   completeButton.disabled =
   false;
+
+
+  scanButton.textContent =
+  "Scan Another Angel";
 
 
   angels.forEach(
@@ -899,6 +951,46 @@ function checkAvailability(
 
     }
   );
+
+}
+
+
+
+async function checkAvailabilityWithRetry(
+  angel
+) {
+
+  try {
+
+    return await checkAvailability(
+      angel
+    );
+
+  }
+
+  catch (firstError) {
+
+    status.textContent =
+    "Still checking. Please wait...";
+
+
+    await new Promise(
+      function(resolve) {
+
+        setTimeout(
+          resolve,
+          1000
+        );
+
+      }
+    );
+
+
+    return await checkAvailability(
+      angel
+    );
+
+  }
 
 }
 
@@ -1285,18 +1377,30 @@ async function closeScanner() {
 
 
 
-async function processScannedAngel(
+async function addAngelIfAvailable(
   angel
 ) {
+
+  if (!angel) {
+
+    status.textContent =
+    "This is not a valid Giving Tree Angel number.";
+
+
+    status.className =
+    "error";
+
+
+    return false;
+
+  }
+
 
   if (
     angels.includes(
       angel
     )
   ) {
-
-    await closeScanner();
-
 
     status.textContent =
     angel +
@@ -1307,7 +1411,7 @@ async function processScannedAngel(
     "error";
 
 
-    return;
+    return false;
 
   }
 
@@ -1324,45 +1428,10 @@ async function processScannedAngel(
 
   try {
 
-    let result;
-
-
-    try {
-
-      result =
-      await checkAvailability(
-        angel
-      );
-
-    }
-
-    catch (firstError) {
-
-      status.textContent =
-      "Still checking. Please wait...";
-
-
-      await new Promise(
-        function(resolve) {
-
-          setTimeout(
-            resolve,
-            1000
-          );
-
-        }
-      );
-
-
-      result =
-      await checkAvailability(
-        angel
-      );
-
-    }
-
-
-    await closeScanner();
+    const result =
+    await checkAvailabilityWithRetry(
+      angel
+    );
 
 
     if (
@@ -1377,7 +1446,7 @@ async function processScannedAngel(
       "error";
 
 
-      return;
+      return false;
 
     }
 
@@ -1394,7 +1463,7 @@ async function processScannedAngel(
       "error";
 
 
-      return;
+      return false;
 
     }
 
@@ -1417,12 +1486,12 @@ async function processScannedAngel(
     status.className =
     "success";
 
+
+    return true;
+
   }
 
   catch (error) {
-
-    await closeScanner();
-
 
     status.textContent =
     "Unable to check this Angel. " +
@@ -1432,7 +1501,72 @@ async function processScannedAngel(
     status.className =
     "error";
 
+
+    return false;
+
   }
+
+}
+
+
+
+async function processScannedAngel(
+  angel
+) {
+
+  await closeScanner();
+
+
+  await addAngelIfAvailable(
+    angel
+  );
+
+}
+
+
+
+async function processAngelFromUrl() {
+
+  if (
+    urlAngelBeingProcessed
+  ) {
+
+    return;
+
+  }
+
+
+  const angel =
+  getAngelFromPageUrl();
+
+
+  if (!angel) {
+
+    return;
+
+  }
+
+
+  urlAngelBeingProcessed =
+  true;
+
+
+  /*
+  Remove the Angel from the visible URL
+  immediately so refreshing the page
+  does not try to add it again.
+  */
+
+  removeAngelFromPageUrl();
+
+
+  await addAngelIfAvailable(
+    angel
+  );
+
+
+  urlAngelBeingProcessed =
+  false;
 
 }
 
@@ -1606,7 +1740,7 @@ function() {
   ) {
 
     status.textContent =
-    "Please scan at least one Angel first.";
+    "Please select at least one Angel first.";
 
 
     status.className =
@@ -1902,10 +2036,6 @@ function() {
   "block";
 
 
-  scanButton.textContent =
-  "Scan an Angel";
-
-
   status.textContent =
   "Ready to scan an Angel.";
 
@@ -1932,17 +2062,21 @@ function() {
 displayCart();
 
 
-if (
-  angels.length > 0
-) {
+/*
+=========================================
+NEW QR ENTRY FEATURE
+=========================================
+If the page was opened with:
 
-  scanButton.textContent =
-  "Scan Another Angel";
+?angel=Angel015
 
-}
+the Angel will automatically be
+validated and added.
+*/
+
+processAngelFromUrl();
 
 </script>
-
 
 </body>
 
