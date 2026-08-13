@@ -61,10 +61,6 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
-  opacity: .55;
-}
-
 .scanner-box {
   display: none;
   margin-top: 14px;
@@ -113,7 +109,7 @@ video {
 .scan-flash {
   position: fixed;
   inset: 0;
-  background: rgba(85, 190, 90, .28);
+  background: rgba(85,190,90,.28);
   opacity: 0;
   pointer-events: none;
   z-index: 9998;
@@ -124,19 +120,9 @@ video {
 }
 
 @keyframes flashScreen {
-
-  0% {
-    opacity: 0;
-  }
-
-  25% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .scan-banner {
@@ -196,77 +182,6 @@ video {
   background: #fdecec !important;
 }
 
-.manual-section {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 2px solid #ddd;
-}
-
-.manual-section h2,
-.queue-section h2 {
-  font-size: 22px;
-  margin-bottom: 8px;
-}
-
-.manual-row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-
-.manual-row input {
-  flex: 1;
-  min-width: 0;
-  min-height: 56px;
-  padding: 12px;
-  font-size: 21px;
-  border: 1px solid #aaa;
-  border-radius: 9px;
-}
-
-.manual-row button {
-  width: auto;
-  min-width: 135px;
-  margin-top: 0;
-}
-
-.queue-section {
-  margin-top: 26px;
-  padding-top: 18px;
-  border-top: 2px solid #ddd;
-}
-
-.queue-summary {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-
-.queue-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 13px 8px;
-  border-bottom: 1px solid #ddd;
-  font-size: 18px;
-}
-
-.queue-angel {
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.queue-result {
-  text-align: right;
-}
-
-.pending,
-.saved,
-.problem {
-  font-weight: bold;
-}
-
 .counter-box {
   display: flex;
   gap: 8px;
@@ -294,8 +209,58 @@ video {
   font-size: 14px;
 }
 
-@media (max-width: 480px) {
+.manual-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid #ddd;
+}
 
+.manual-row {
+  display: flex;
+  gap: 8px;
+}
+
+.manual-row input {
+  flex: 1;
+  min-width: 0;
+  min-height: 56px;
+  padding: 12px;
+  font-size: 21px;
+  border: 1px solid #aaa;
+  border-radius: 9px;
+}
+
+.manual-row button {
+  width: auto;
+  min-width: 135px;
+  margin-top: 0;
+}
+
+.queue-section {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 2px solid #ddd;
+}
+
+.queue-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 8px;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+}
+
+.queue-angel {
+  font-weight: bold;
+}
+
+.queue-result {
+  text-align: right;
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
   .manual-row {
     flex-direction: column;
   }
@@ -303,7 +268,6 @@ video {
   .manual-row button {
     width: 100%;
   }
-
 }
 
 </style>
@@ -348,7 +312,7 @@ Start Return Scanner
   class="scanner-box">
 
 <div class="scan-title">
-Keep scanning. The camera will stay open.
+Keep scanning. Returns save automatically.
 </div>
 
 <div class="scan-frame">
@@ -379,36 +343,18 @@ Ready to begin.
 <div class="counter-box">
 
 <div class="counter">
-<span
-  id="savedCount"
-  class="counter-number">
-0
-</span>
-<span class="counter-label">
-Saved
-</span>
+<span id="savedCount" class="counter-number">0</span>
+<span class="counter-label">Saved</span>
 </div>
 
 <div class="counter">
-<span
-  id="pendingCount"
-  class="counter-number">
-0
-</span>
-<span class="counter-label">
-Saving
-</span>
+<span id="pendingCount" class="counter-number">0</span>
+<span class="counter-label">In Queue</span>
 </div>
 
 <div class="counter">
-<span
-  id="problemCount"
-  class="counter-number">
-0
-</span>
-<span class="counter-label">
-Needs Attention
-</span>
+<span id="problemCount" class="counter-number">0</span>
+<span class="counter-label">Attention</span>
 </div>
 
 </div>
@@ -444,22 +390,16 @@ Check In
 
 <h2>Recent Returns</h2>
 
-<div
-  id="queueSummary"
-  class="queue-summary">
+<div id="queueList">
 No gifts scanned yet.
 </div>
 
-<div id="queueList"></div>
-
 </div>
-
 
 </div>
 
 
 <script type="module">
-
 
 import QrScanner
 from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
@@ -467,6 +407,14 @@ from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxZp0fNOC7QPDzvOrWCezJl8jKH0ZrSHGnmnEfnnuu44Sr8HrN9NFa-EZlz4GRrQVOF/exec";
+
+
+const BATCH_SIZE = 5;
+
+const BATCH_DELAY = 1500;
+
+const STORAGE_KEY =
+"givingTreeReturnQueueV1";
 
 
 const video =
@@ -493,9 +441,6 @@ document.getElementById("manualButton");
 const queueList =
 document.getElementById("queueList");
 
-const queueSummary =
-document.getElementById("queueSummary");
-
 const savedCount =
 document.getElementById("savedCount");
 
@@ -517,6 +462,10 @@ document.getElementById("scanFlash");
 
 let returnQueue = [];
 
+let batchTimer = null;
+
+let batchRunning = false;
+
 let lastScannedAngel = "";
 
 let lastScanTime = 0;
@@ -525,22 +474,15 @@ let bannerTimer = null;
 
 
 
-function normalizeAngel(
-  value
-) {
+function normalizeAngel(value) {
 
   const digits =
   String(value || "")
-    .replace(
-      /\D/g,
-      ""
-    );
+    .replace(/\D/g, "");
 
 
   if (!digits) {
-
     return "";
-
   }
 
 
@@ -554,9 +496,7 @@ function normalizeAngel(
 
 
 
-function extractAngelCode(
-  scannedText
-) {
+function extractAngelCode(scannedText) {
 
   try {
 
@@ -603,6 +543,114 @@ function extractAngelCode(
 
 
   return "";
+
+}
+
+
+
+function createId() {
+
+  return (
+    Date.now().toString(36) +
+    "_" +
+    Math.random()
+      .toString(36)
+      .substring(2)
+  );
+
+}
+
+
+
+function createToken() {
+
+  return (
+    "batch_" +
+    createId()
+  );
+
+}
+
+
+
+function saveLocalQueue() {
+
+  const keep =
+  returnQueue.filter(
+    function(item) {
+
+      return (
+        item.state === "queued" ||
+        item.state === "sending"
+      );
+
+    }
+  );
+
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(keep)
+  );
+
+}
+
+
+
+function restoreLocalQueue() {
+
+  try {
+
+    const stored =
+    JSON.parse(
+      localStorage.getItem(
+        STORAGE_KEY
+      ) || "[]"
+    );
+
+
+    if (
+      !Array.isArray(stored)
+    ) {
+
+      return;
+
+    }
+
+
+    stored.forEach(
+      function(item) {
+
+        /*
+        If the browser closed during a send,
+        we cannot safely assume success or failure.
+
+        Put it back in the queue.
+        The backend's duplicate protection
+        will protect the database if it had
+        already been saved.
+        */
+
+        item.state =
+        "queued";
+
+
+        item.message =
+        "Recovered";
+
+
+        returnQueue.push(
+          item
+        );
+
+      }
+    );
+
+  }
+
+  catch (error) {
+
+  }
 
 }
 
@@ -667,21 +715,7 @@ function showScanConfirmation(
       );
 
     },
-    1100
-  );
-
-}
-
-
-
-function createToken() {
-
-  return (
-    Date.now().toString(36) +
-    "_" +
-    Math.random()
-      .toString(36)
-      .substring(2)
+    1000
   );
 
 }
@@ -700,7 +734,10 @@ function updateCounters() {
   const pending =
   returnQueue.filter(
     item =>
-    item.state === "pending"
+    (
+      item.state === "queued" ||
+      item.state === "sending"
+    )
   ).length;
 
 
@@ -722,24 +759,6 @@ function updateCounters() {
   problemCount.textContent =
   problems;
 
-
-  if (
-    returnQueue.length === 0
-  ) {
-
-    queueSummary.textContent =
-    "No gifts scanned yet.";
-
-  }
-
-  else {
-
-    queueSummary.textContent =
-    returnQueue.length +
-    " gift(s) processed this session.";
-
-  }
-
 }
 
 
@@ -750,12 +769,26 @@ function displayQueue() {
   "";
 
 
+  if (
+    returnQueue.length === 0
+  ) {
+
+    queueList.textContent =
+    "No gifts scanned yet.";
+
+    updateCounters();
+
+    return;
+
+  }
+
+
   returnQueue
     .slice()
     .reverse()
     .slice(
       0,
-      12
+      15
     )
     .forEach(
       function(item) {
@@ -795,14 +828,18 @@ function displayQueue() {
 
 
         if (
-          item.state ===
-          "pending"
+          item.state === "queued"
         ) {
 
-          result.classList.add(
-            "pending"
-          );
+          result.textContent =
+          "Queued";
 
+        }
+
+
+        else if (
+          item.state === "sending"
+        ) {
 
           result.textContent =
           "Saving...";
@@ -811,14 +848,8 @@ function displayQueue() {
 
 
         else if (
-          item.state ===
-          "saved"
+          item.state === "saved"
         ) {
-
-          result.classList.add(
-            "saved"
-          );
-
 
           result.textContent =
           "✓ Saved";
@@ -827,11 +858,6 @@ function displayQueue() {
 
 
         else {
-
-          result.classList.add(
-            "problem"
-          );
-
 
           result.textContent =
           "⚠ " +
@@ -923,12 +949,7 @@ function jsonpOnce(
 
       const callback =
       "gtr_" +
-      Date.now() +
-      "_" +
-      Math.floor(
-        Math.random() *
-        1000000
-      );
+      createId();
 
 
       const script =
@@ -951,7 +972,7 @@ function jsonpOnce(
           );
 
         },
-        30000
+        15000
       );
 
 
@@ -1068,74 +1089,14 @@ function jsonpOnce(
 
 
 
-async function checkReturnStatus(
-  token
-) {
-
-  for (
-    let attempt = 0;
-    attempt < 60;
-    attempt++
-  ) {
-
-    try {
-
-      const result =
-      await jsonpOnce(
-        "returnStatus",
-        {
-          token: token
-        }
-      );
-
-
-      if (
-        result.done
-      ) {
-
-        return result;
-
-      }
-
-    }
-
-    catch (error) {
-
-    }
-
-
-    await new Promise(
-      resolve =>
-      setTimeout(
-        resolve,
-        500
-      )
-    );
-
-  }
-
-
-  throw new Error(
-    "Confirmation delayed"
-  );
-
-}
-
-
-
-function postReturn(
-  angel,
+function postBatch(
+  angels,
   token
 ) {
 
   const iframeName =
-  "returnFrame_" +
-  Date.now() +
-  "_" +
-  Math.floor(
-    Math.random() *
-    100000
-  );
+  "returnBatchFrame_" +
+  createId();
 
 
   const iframe =
@@ -1182,13 +1143,15 @@ function postReturn(
   const fields = {
 
     type:
-    "return",
+    "returnBatch",
 
     token:
     token,
 
-    angel:
-    angel
+    angels:
+    JSON.stringify(
+      angels
+    )
 
   };
 
@@ -1255,76 +1218,318 @@ function postReturn(
 
 
 
-async function submitReturn(
-  item
+async function waitForBatch(
+  token
 ) {
+
+  const start =
+  Date.now();
+
+
+  while (
+    Date.now() -
+    start <
+    90000
+  ) {
+
+    try {
+
+      const result =
+      await jsonpOnce(
+        "returnStatus",
+        {
+          token: token
+        }
+      );
+
+
+      if (
+        result.done
+      ) {
+
+        return result;
+
+      }
+
+    }
+
+    catch (error) {
+
+    }
+
+
+    await new Promise(
+      resolve =>
+      setTimeout(
+        resolve,
+        750
+      )
+    );
+
+  }
+
+
+  throw new Error(
+    "Confirmation delayed"
+  );
+
+}
+
+
+
+function scheduleBatch() {
+
+  if (
+    batchRunning
+  ) {
+
+    return;
+
+  }
+
+
+  const queued =
+  returnQueue.filter(
+    item =>
+    item.state === "queued"
+  );
+
+
+  if (
+    queued.length >=
+    BATCH_SIZE
+  ) {
+
+    if (
+      batchTimer
+    ) {
+
+      clearTimeout(
+        batchTimer
+      );
+
+
+      batchTimer =
+      null;
+
+    }
+
+
+    sendNextBatch();
+
+    return;
+
+  }
+
+
+  if (
+    queued.length > 0 &&
+    !batchTimer
+  ) {
+
+    batchTimer =
+    setTimeout(
+      function() {
+
+        batchTimer =
+        null;
+
+
+        sendNextBatch();
+
+      },
+      BATCH_DELAY
+    );
+
+  }
+
+}
+
+
+
+async function sendNextBatch() {
+
+  if (
+    batchRunning
+  ) {
+
+    return;
+
+  }
+
+
+  const batchItems =
+  returnQueue
+    .filter(
+      item =>
+      item.state === "queued"
+    )
+    .slice(
+      0,
+      BATCH_SIZE
+    );
+
+
+  if (
+    batchItems.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  batchRunning =
+  true;
+
 
   const token =
   createToken();
 
 
-  item.token =
-  token;
+  batchItems.forEach(
+    function(item) {
+
+      item.state =
+      "sending";
 
 
-  postReturn(
-    item.angel,
+      item.batchToken =
+      token;
+
+    }
+  );
+
+
+  saveLocalQueue();
+
+  displayQueue();
+
+
+  const angels =
+  batchItems.map(
+    item =>
+    item.angel
+  );
+
+
+  postBatch(
+    angels,
     token
   );
 
 
   try {
 
-    const result =
-    await checkReturnStatus(
+    const response =
+    await waitForBatch(
       token
     );
 
 
     if (
-      result.success
+      !response.success ||
+      !Array.isArray(
+        response.results
+      )
     ) {
 
-      item.state =
-      "saved";
-
-
-      item.message =
-      "Saved";
+      throw new Error(
+        response.message ||
+        "Batch failed"
+      );
 
     }
 
-    else {
 
-      item.state =
-      "problem";
+    response.results.forEach(
+      function(result, index) {
+
+        const item =
+        batchItems[index];
 
 
-      item.message =
-      result.duplicate
-        ? "Already Returned"
-        : (
-            result.message ||
-            "Needs Attention"
-          );
+        if (!item) {
+          return;
+        }
 
-    }
+
+        if (
+          result.success
+        ) {
+
+          item.state =
+          "saved";
+
+
+          item.message =
+          "Saved";
+
+        }
+
+        else {
+
+          item.state =
+          "problem";
+
+
+          item.message =
+          result.duplicate
+            ? "Already Returned"
+            : (
+                result.message ||
+                "Needs Attention"
+              );
+
+        }
+
+      }
+    );
 
   }
 
   catch (error) {
 
-    item.state =
-    "problem";
+    /*
+    IMPORTANT:
+    Do not automatically resend a batch
+    after an uncertain confirmation.
+
+    Google may already have processed it.
+    */
+
+    batchItems.forEach(
+      function(item) {
+
+        item.state =
+        "problem";
 
 
-    item.message =
-    "Confirmation Delayed";
+        item.message =
+        "Check Return Log";
+
+      }
+    );
+
+
+    setStatus(
+      "A batch needs attention. Scanning can continue.",
+      "error"
+    );
 
   }
 
 
+  batchRunning =
+  false;
+
+
+  saveLocalQueue();
+
   displayQueue();
+
+
+  scheduleBatch();
 
 }
 
@@ -1337,8 +1542,45 @@ function queueReturn(
   if (!angel) {
 
     setStatus(
-      "That is not a valid Giving Tree Angel QR code.",
+      "Invalid Giving Tree Angel.",
       "error"
+    );
+
+
+    return;
+
+  }
+
+
+  const alreadyPending =
+  returnQueue.some(
+    function(item) {
+
+      return (
+        item.angel === angel &&
+        (
+          item.state === "queued" ||
+          item.state === "sending"
+        )
+      );
+
+    }
+  );
+
+
+  if (
+    alreadyPending
+  ) {
+
+    showScanConfirmation(
+      angel
+    );
+
+
+    setStatus(
+      angel +
+      " is already waiting to save.",
+      "saving"
     );
 
 
@@ -1349,14 +1591,20 @@ function queueReturn(
 
   const item = {
 
+    id:
+    createId(),
+
     angel:
     angel,
 
     state:
-    "pending",
+    "queued",
 
     message:
-    "Saving"
+    "Queued",
+
+    createdAt:
+    Date.now()
 
   };
 
@@ -1365,6 +1613,8 @@ function queueReturn(
     item
   );
 
+
+  saveLocalQueue();
 
   displayQueue();
 
@@ -1376,14 +1626,12 @@ function queueReturn(
 
   setStatus(
     angel +
-    " scanned. Move to the next gift.",
+    " captured. NEXT GIFT.",
     "ready"
   );
 
 
-  submitReturn(
-    item
-  );
+  scheduleBatch();
 
 }
 
@@ -1405,7 +1653,7 @@ new QrScanner(
     if (!angel) {
 
       setStatus(
-        "Invalid QR code. Keep scanning.",
+        "Invalid QR. Keep scanning.",
         "error"
       );
 
@@ -1539,7 +1787,7 @@ async function() {
 
 
   setStatus(
-    "Scanner stopped.",
+    "Scanner stopped. Pending returns will continue saving.",
     "ready"
   );
 
@@ -1589,11 +1837,11 @@ manualAngel.addEventListener(
   function(event) {
 
     if (
-      event.key ===
-      "Enter"
+      event.key === "Enter"
     ) {
 
       event.preventDefault();
+
 
       manualButton.click();
 
@@ -1604,7 +1852,11 @@ manualAngel.addEventListener(
 
 
 
+restoreLocalQueue();
+
 displayQueue();
+
+scheduleBatch();
 
 
 </script>
