@@ -20,7 +20,7 @@
 
 body {
   margin: 0;
-  padding: 12px;
+  padding: 10px;
   font-family: Arial, sans-serif;
   background: #f5f5f5;
   color: #222;
@@ -28,35 +28,31 @@ body {
 
 .card {
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   margin: 0 auto;
   background: white;
   border: 1px solid #ddd;
   border-radius: 14px;
-  padding: 20px;
+  padding: 18px;
 }
 
 h1 {
   text-align: center;
   font-size: 30px;
+  margin: 4px 0 8px;
+}
+
+.subtitle {
+  text-align: center;
   margin-top: 0;
-}
-
-h2 {
-  font-size: 22px;
-  margin-top: 28px;
-}
-
-p {
   font-size: 18px;
-  line-height: 1.4;
 }
 
 button {
   width: 100%;
   min-height: 58px;
   padding: 14px;
-  margin-top: 16px;
+  margin-top: 12px;
   font-size: 20px;
   font-weight: bold;
   border-radius: 10px;
@@ -66,13 +62,13 @@ button {
 }
 
 button:disabled {
-  opacity: .6;
+  opacity: .55;
 }
 
 .scanner-box {
   display: none;
-  margin-top: 18px;
-  padding: 14px;
+  margin-top: 14px;
+  padding: 12px;
   border: 2px solid #ccc;
   border-radius: 12px;
   background: #fafafa;
@@ -82,6 +78,13 @@ button:disabled {
   display: block;
 }
 
+.scan-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 4px 0 10px;
+}
+
 .scan-frame {
   position: relative;
 }
@@ -89,6 +92,7 @@ button:disabled {
 video {
   width: 100%;
   min-height: 260px;
+  max-height: 430px;
   object-fit: cover;
   background: black;
   border-radius: 10px;
@@ -98,7 +102,7 @@ video {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 70%;
+  width: 68%;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border: 3px solid white;
@@ -107,83 +111,161 @@ video {
 }
 
 #status {
-  margin-top: 16px;
+  margin-top: 14px;
   padding: 14px;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: bold;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #f0f0f0;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-.success {
+.status-ready {
   background: #eef8ee !important;
 }
 
-.error {
+.status-saving {
+  background: #fff8df !important;
+}
+
+.status-error {
   background: #fdecec !important;
 }
 
-.processing {
-  background: #f7f7f7 !important;
-}
-
 .manual-section {
-  margin-top: 30px;
-  padding-top: 22px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 2px solid #ddd;
 }
 
-label {
-  display: block;
-  margin-top: 12px;
-  font-size: 18px;
-  font-weight: bold;
+.manual-section h2,
+.queue-section h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
 }
 
-input {
-  width: 100%;
-  min-height: 52px;
-  padding: 14px;
-  margin-top: 7px;
-  font-size: 20px;
+.manual-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.manual-row input {
+  flex: 1;
+  min-width: 0;
+  min-height: 56px;
+  padding: 12px;
+  font-size: 21px;
   border: 1px solid #aaa;
-  border-radius: 8px;
+  border-radius: 9px;
 }
 
-.history {
-  margin-top: 28px;
+.manual-row button {
+  width: auto;
+  min-width: 135px;
+  margin-top: 0;
+}
+
+.queue-section {
+  margin-top: 26px;
   padding-top: 18px;
   border-top: 2px solid #ddd;
 }
 
-.history-item {
-  padding: 10px 0;
+.queue-summary {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 8px;
   border-bottom: 1px solid #ddd;
   font-size: 18px;
+}
+
+.queue-angel {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.queue-result {
+  text-align: right;
+}
+
+.pending {
+  font-weight: bold;
+}
+
+.saved {
+  font-weight: bold;
+}
+
+.problem {
+  font-weight: bold;
+}
+
+.counter-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.counter {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  background: #fafafa;
+}
+
+.counter-number {
+  display: block;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.counter-label {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+
+  .manual-row {
+    flex-direction: column;
+  }
+
+  .manual-row button {
+    width: 100%;
+  }
+
 }
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="card">
 
-
 <h1>Giving Tree Returns</h1>
 
-<p>
-Scan the Angel QR code to check in the gift.
+<p class="subtitle">
+Continuous Gift Check In
 </p>
 
 
-<button id="scanButton">
-Scan Gift
+<button id="startButton">
+Start Return Scanner
 </button>
 
 
@@ -191,10 +273,9 @@ Scan Gift
   id="scannerBox"
   class="scanner-box">
 
-<p>
-Point the camera at the Angel QR code.
-</p>
-
+<div class="scan-title">
+Keep scanning. The camera will stay open.
+</div>
 
 <div class="scan-frame">
 
@@ -207,31 +288,68 @@ Point the camera at the Angel QR code.
 
 </div>
 
-
-<button id="cancelScanButton">
-Cancel Scan
+<button id="stopButton">
+Stop Scanner
 </button>
 
 </div>
 
 
-<div id="status">
-Ready to check in a gift.
+<div
+  id="status"
+  class="status-ready">
+Ready to begin.
+</div>
+
+
+<div class="counter-box">
+
+<div class="counter">
+<span
+  id="savedCount"
+  class="counter-number">
+0
+</span>
+<span class="counter-label">
+Saved
+</span>
+</div>
+
+<div class="counter">
+<span
+  id="pendingCount"
+  class="counter-number">
+0
+</span>
+<span class="counter-label">
+Saving
+</span>
+</div>
+
+<div class="counter">
+<span
+  id="problemCount"
+  class="counter-number">
+0
+</span>
+<span class="counter-label">
+Needs Attention
+</span>
+</div>
+
 </div>
 
 
 
 <div class="manual-section">
 
-<h2>Missing or Damaged Tag?</h2>
+<h2>Manual Check In</h2>
 
 <p>
-Enter the Angel number manually.
+For a missing or damaged QR tag, enter the Angel number.
 </p>
 
-<label for="manualAngel">
-Angel Number
-</label>
+<div class="manual-row">
 
 <input
   id="manualAngel"
@@ -240,27 +358,32 @@ Angel Number
   placeholder="Example: 777"
 >
 
-<button id="manualReturnButton">
-Check In Gift Manually
+<button id="manualButton">
+Check In
 </button>
 
 </div>
 
-
-
-<div class="history">
-
-<h2>This Session</h2>
-
-<div id="historyList">
-<p>No gifts checked in yet.</p>
-</div>
-
 </div>
 
 
+
+<div class="queue-section">
+
+<h2>Recent Returns</h2>
+
+<div
+  id="queueSummary"
+  class="queue-summary">
+No gifts scanned yet.
 </div>
 
+<div id="queueList"></div>
+
+</div>
+
+
+</div>
 
 
 <script type="module">
@@ -280,11 +403,11 @@ document.getElementById("qrVideo");
 const scannerBox =
 document.getElementById("scannerBox");
 
-const scanButton =
-document.getElementById("scanButton");
+const startButton =
+document.getElementById("startButton");
 
-const cancelScanButton =
-document.getElementById("cancelScanButton");
+const stopButton =
+document.getElementById("stopButton");
 
 const status =
 document.getElementById("status");
@@ -292,92 +415,36 @@ document.getElementById("status");
 const manualAngel =
 document.getElementById("manualAngel");
 
-const manualReturnButton =
-document.getElementById("manualReturnButton");
+const manualButton =
+document.getElementById("manualButton");
 
-const historyList =
-document.getElementById("historyList");
+const queueList =
+document.getElementById("queueList");
 
+const queueSummary =
+document.getElementById("queueSummary");
 
-let scanBeingProcessed =
-false;
+const savedCount =
+document.getElementById("savedCount");
 
+const pendingCount =
+document.getElementById("pendingCount");
 
-let sessionHistory =
-[];
-
-
-
-function extractAngelCode(
-  scannedText
-) {
-
-  try {
-
-    const url =
-    new URL(scannedText);
+const problemCount =
+document.getElementById("problemCount");
 
 
-    for (
-      const value
-      of url.searchParams.values()
-    ) {
+let returnQueue = [];
 
-      if (
-        /^Angel\d+$/i.test(
-          value
-        )
-      ) {
+let scannerRunning = false;
 
-        const digits =
-        value.replace(
-          /\D/g,
-          ""
-        );
+let lastScannedAngel = "";
 
-
-        return "Angel" +
-        digits.padStart(
-          3,
-          "0"
-        );
-
-      }
-
-    }
-
-  }
-
-  catch (error) {
-
-    const digits =
-    String(scannedText || "")
-      .replace(
-        /\D/g,
-        ""
-      );
-
-
-    if (digits) {
-
-      return "Angel" +
-      digits.padStart(
-        3,
-        "0"
-      );
-
-    }
-
-  }
-
-
-  return "";
-
-}
+let lastScanTime = 0;
 
 
 
-function normalizeManualAngel(
+function normalizeAngel(
   value
 ) {
 
@@ -406,6 +473,60 @@ function normalizeManualAngel(
 
 
 
+function extractAngelCode(
+  scannedText
+) {
+
+  try {
+
+    const url =
+    new URL(scannedText);
+
+
+    for (
+      const value
+      of url.searchParams.values()
+    ) {
+
+      if (
+        /^Angel\d+$/i.test(
+          value
+        )
+      ) {
+
+        return normalizeAngel(
+          value
+        );
+
+      }
+
+    }
+
+  }
+
+  catch (error) {
+
+    if (
+      /^Angel\d+$/i.test(
+        String(scannedText || "")
+      )
+    ) {
+
+      return normalizeAngel(
+        scannedText
+      );
+
+    }
+
+  }
+
+
+  return "";
+
+}
+
+
+
 function createToken() {
 
   return (
@@ -420,68 +541,226 @@ function createToken() {
 
 
 
-function addHistory(
-  angel,
-  message,
-  success
-) {
+function updateCounters() {
 
-  sessionHistory.unshift({
-    angel: angel,
-    message: message,
-    success: success
-  });
+  const saved =
+  returnQueue.filter(
+    item =>
+    item.state === "saved"
+  ).length;
 
 
-  displayHistory();
+  const pending =
+  returnQueue.filter(
+    item =>
+    item.state === "pending"
+  ).length;
+
+
+  const problems =
+  returnQueue.filter(
+    item =>
+    item.state === "problem"
+  ).length;
+
+
+  savedCount.textContent =
+  saved;
+
+
+  pendingCount.textContent =
+  pending;
+
+
+  problemCount.textContent =
+  problems;
+
+
+  if (
+    returnQueue.length === 0
+  ) {
+
+    queueSummary.textContent =
+    "No gifts scanned yet.";
+
+  }
+
+  else {
+
+    queueSummary.textContent =
+    returnQueue.length +
+    " gift(s) processed this session.";
+
+  }
 
 }
 
 
 
-function displayHistory() {
+function displayQueue() {
 
-  historyList.innerHTML =
+  queueList.innerHTML =
+  "";
+
+
+  returnQueue
+    .slice()
+    .reverse()
+    .slice(
+      0,
+      12
+    )
+    .forEach(
+      function(item) {
+
+        const row =
+        document.createElement(
+          "div"
+        );
+
+
+        row.className =
+        "queue-item";
+
+
+        const angel =
+        document.createElement(
+          "div"
+        );
+
+
+        angel.className =
+        "queue-angel";
+
+
+        angel.textContent =
+        item.angel;
+
+
+        const result =
+        document.createElement(
+          "div"
+        );
+
+
+        result.className =
+        "queue-result";
+
+
+        if (
+          item.state ===
+          "pending"
+        ) {
+
+          result.classList.add(
+            "pending"
+          );
+
+
+          result.textContent =
+          "Saving...";
+
+        }
+
+
+        else if (
+          item.state ===
+          "saved"
+        ) {
+
+          result.classList.add(
+            "saved"
+          );
+
+
+          result.textContent =
+          "✓ Saved";
+
+        }
+
+
+        else {
+
+          result.classList.add(
+            "problem"
+          );
+
+
+          result.textContent =
+          "⚠ " +
+          item.message;
+
+        }
+
+
+        row.appendChild(
+          angel
+        );
+
+
+        row.appendChild(
+          result
+        );
+
+
+        queueList.appendChild(
+          row
+        );
+
+      }
+    );
+
+
+  updateCounters();
+
+}
+
+
+
+function setStatus(
+  message,
+  type
+) {
+
+  status.textContent =
+  message;
+
+
+  status.className =
   "";
 
 
   if (
-    sessionHistory.length === 0
+    type === "ready"
   ) {
 
-    historyList.innerHTML =
-    "<p>No gifts checked in yet.</p>";
-
-    return;
+    status.classList.add(
+      "status-ready"
+    );
 
   }
 
 
-  sessionHistory.forEach(
-    function(item) {
+  else if (
+    type === "saving"
+  ) {
 
-      const div =
-      document.createElement(
-        "div"
-      );
+    status.classList.add(
+      "status-saving"
+    );
 
-
-      div.className =
-      "history-item";
+  }
 
 
-      div.textContent =
-      item.angel +
-      " - " +
-      item.message;
+  else if (
+    type === "error"
+  ) {
 
+    status.classList.add(
+      "status-error"
+    );
 
-      historyList.appendChild(
-        div
-      );
-
-    }
-  );
+  }
 
 }
 
@@ -520,7 +799,7 @@ function jsonpOnce(
 
           reject(
             new Error(
-              "The Giving Tree database did not respond."
+              "Confirmation timed out."
             )
           );
 
@@ -582,7 +861,7 @@ function jsonpOnce(
 
         reject(
           new Error(
-            "The Giving Tree database could not be reached."
+            "Database connection failed."
           )
         );
 
@@ -642,41 +921,56 @@ function jsonpOnce(
 
 
 
-async function jsonpWithRetry(
-  action,
-  values
+async function checkReturnStatus(
+  token
 ) {
 
-  try {
+  for (
+    let attempt = 0;
+    attempt < 60;
+    attempt++
+  ) {
 
-    return await jsonpOnce(
-      action,
-      values
-    );
+    try {
 
-  }
+      const result =
+      await jsonpOnce(
+        "returnStatus",
+        {
+          token: token
+        }
+      );
 
-  catch (firstError) {
 
-    status.textContent =
-    "Still processing. Please wait...";
+      if (
+        result.done
+      ) {
+
+        return result;
+
+      }
+
+    }
+
+    catch (error) {
+
+    }
 
 
     await new Promise(
       resolve =>
       setTimeout(
         resolve,
-        1000
+        500
       )
     );
 
-
-    return await jsonpOnce(
-      action,
-      values
-    );
-
   }
+
+
+  throw new Error(
+    "Confirmation delayed"
+  );
 
 }
 
@@ -689,7 +983,12 @@ function postReturn(
 
   const iframeName =
   "returnFrame_" +
-  Date.now();
+  Date.now() +
+  "_" +
+  Math.floor(
+    Math.random() *
+    100000
+  );
 
 
   const iframe =
@@ -802,117 +1101,27 @@ function postReturn(
       iframe.remove();
 
     },
-    60000
+    90000
   );
 
 }
 
 
 
-async function waitForReturn(
-  token
+async function submitReturn(
+  item
 ) {
-
-  for (
-    let attempt = 0;
-    attempt < 60;
-    attempt++
-  ) {
-
-    try {
-
-      const result =
-      await jsonpWithRetry(
-        "returnStatus",
-        {
-          token: token
-        }
-      );
-
-
-      if (
-        result.done
-      ) {
-
-        return result;
-
-      }
-
-    }
-
-    catch (error) {
-
-    }
-
-
-    await new Promise(
-      resolve =>
-      setTimeout(
-        resolve,
-        500
-      )
-    );
-
-  }
-
-
-  throw new Error(
-    "The return was submitted, but confirmation is taking longer than expected."
-  );
-
-}
-
-
-
-async function stopScanner() {
-
-  try {
-
-    await scanner.stop();
-
-  }
-
-  catch (error) {
-
-  }
-
-
-  scannerBox.classList.remove(
-    "active"
-  );
-
-}
-
-
-
-async function processGiftReturn(
-  angel
-) {
-
-  status.textContent =
-  "Checking in " +
-  angel +
-  "...";
-
-
-  status.className =
-  "processing";
-
-
-  scanButton.disabled =
-  true;
-
-
-  manualReturnButton.disabled =
-  true;
-
 
   const token =
   createToken();
 
 
+  item.token =
+  token;
+
+
   postReturn(
-    angel,
+    item.angel,
     token
   );
 
@@ -920,7 +1129,7 @@ async function processGiftReturn(
   try {
 
     const result =
-    await waitForReturn(
+    await checkReturnStatus(
       token
     );
 
@@ -929,39 +1138,28 @@ async function processGiftReturn(
       result.success
     ) {
 
-      status.textContent =
-      result.message;
+      item.state =
+      "saved";
 
 
-      status.className =
-      "success";
-
-
-      addHistory(
-        angel,
-        "Returned",
-        true
-      );
+      item.message =
+      "Saved";
 
     }
 
     else {
 
-      status.textContent =
-      result.message;
+      item.state =
+      "problem";
 
 
-      status.className =
-      "error";
-
-
-      addHistory(
-        angel,
-        result.duplicate
-          ? "Duplicate Return"
-          : "Not Accepted",
-        false
-      );
+      item.message =
+      result.duplicate
+        ? "Already Returned"
+        : (
+            result.message ||
+            "Needs Attention"
+          );
 
     }
 
@@ -969,22 +1167,71 @@ async function processGiftReturn(
 
   catch (error) {
 
-    status.textContent =
-    error.message;
+    item.state =
+    "problem";
 
 
-    status.className =
-    "error";
+    item.message =
+    "Confirmation Delayed";
 
   }
 
 
-  scanButton.disabled =
-  false;
+  displayQueue();
+
+}
 
 
-  manualReturnButton.disabled =
-  false;
+
+function queueReturn(
+  angel
+) {
+
+  if (!angel) {
+
+    setStatus(
+      "That is not a valid Giving Tree Angel QR code.",
+      "error"
+    );
+
+
+    return;
+
+  }
+
+
+  const item = {
+
+    angel:
+    angel,
+
+    state:
+    "pending",
+
+    message:
+    "Saving"
+
+  };
+
+
+  returnQueue.push(
+    item
+  );
+
+
+  displayQueue();
+
+
+  setStatus(
+    angel +
+    " scanned. Ready for next gift.",
+    "ready"
+  );
+
+
+  submitReturn(
+    item
+  );
 
 }
 
@@ -995,20 +1242,7 @@ new QrScanner(
 
   video,
 
-  async function(result) {
-
-    if (
-      scanBeingProcessed
-    ) {
-
-      return;
-
-    }
-
-
-    scanBeingProcessed =
-    true;
-
+  function(result) {
 
     const angel =
     extractAngelCode(
@@ -1016,21 +1250,12 @@ new QrScanner(
     );
 
 
-    await stopScanner();
-
-
     if (!angel) {
 
-      status.textContent =
-      "This is not a valid Giving Tree Angel QR code.";
-
-
-      status.className =
-      "error";
-
-
-      scanBeingProcessed =
-      false;
+      setStatus(
+        "Invalid QR code. Keep scanning.",
+        "error"
+      );
 
 
       return;
@@ -1038,13 +1263,34 @@ new QrScanner(
     }
 
 
-    await processGiftReturn(
+    const now =
+    Date.now();
+
+
+    if (
+      angel ===
+      lastScannedAngel &&
+      now -
+      lastScanTime <
+      4000
+    ) {
+
+      return;
+
+    }
+
+
+    lastScannedAngel =
+    angel;
+
+
+    lastScanTime =
+    now;
+
+
+    queueReturn(
       angel
     );
-
-
-    scanBeingProcessed =
-    false;
 
   },
 
@@ -1069,24 +1315,18 @@ new QrScanner(
 
 
 
-scanButton.onclick =
+startButton.onclick =
 async function() {
-
-  scanBeingProcessed =
-  false;
-
 
   scannerBox.classList.add(
     "active"
   );
 
 
-  status.textContent =
-  "Starting scanner...";
-
-
-  status.className =
-  "";
+  setStatus(
+    "Starting camera...",
+    "saving"
+  );
 
 
   try {
@@ -1094,9 +1334,18 @@ async function() {
     await scanner.start();
 
 
-    status.textContent =
-    "Camera ready. Scan an Angel QR.";
+    scannerRunning =
+    true;
 
+
+    startButton.style.display =
+    "none";
+
+
+    setStatus(
+      "Scanner ready. Scan the first gift.",
+      "ready"
+    );
 
   }
 
@@ -1107,12 +1356,10 @@ async function() {
     );
 
 
-    status.textContent =
-    "Camera could not start.";
-
-
-    status.className =
-    "error";
+    setStatus(
+      "Camera could not start.",
+      "error"
+    );
 
   }
 
@@ -1120,44 +1367,57 @@ async function() {
 
 
 
-cancelScanButton.onclick =
+stopButton.onclick =
 async function() {
 
-  await stopScanner();
+  try {
+
+    await scanner.stop();
+
+  }
+
+  catch (error) {
+
+  }
 
 
-  scanBeingProcessed =
+  scannerRunning =
   false;
 
 
-  status.textContent =
-  "Scan cancelled.";
+  scannerBox.classList.remove(
+    "active"
+  );
 
 
-  status.className =
-  "";
+  startButton.style.display =
+  "block";
+
+
+  setStatus(
+    "Scanner stopped.",
+    "ready"
+  );
 
 };
 
 
 
-manualReturnButton.onclick =
-async function() {
+manualButton.onclick =
+function() {
 
   const angel =
-  normalizeManualAngel(
+  normalizeAngel(
     manualAngel.value
   );
 
 
   if (!angel) {
 
-    status.textContent =
-    "Please enter a valid Angel number.";
-
-
-    status.className =
-    "error";
+    setStatus(
+      "Please enter a valid Angel number.",
+      "error"
+    );
 
 
     return;
@@ -1169,19 +1429,41 @@ async function() {
   "";
 
 
-  await processGiftReturn(
+  queueReturn(
     angel
   );
+
+
+  manualAngel.focus();
 
 };
 
 
 
-displayHistory();
+manualAngel.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key ===
+      "Enter"
+    ) {
+
+      event.preventDefault();
+
+      manualButton.click();
+
+    }
+
+  }
+);
+
+
+
+displayQueue();
 
 
 </script>
-
 
 </body>
 
