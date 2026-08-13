@@ -28,7 +28,7 @@ body {
 
 .card {
   width: 100%;
-  max-width: 600px;
+  max-width: 620px;
   margin: 0 auto;
   background: white;
   border: 1px solid #ddd;
@@ -38,17 +38,20 @@ body {
 
 h1 {
   text-align: center;
-  font-size: 30px;
+  font-size: 32px;
+  margin: 4px 0 8px;
 }
 
 h2 {
-  font-size: 22px;
-  margin-top: 24px;
+  font-size: 23px;
+  margin-top: 26px;
 }
 
-p {
+.intro {
+  text-align: center;
   font-size: 18px;
-  line-height: 1.4;
+  line-height: 1.45;
+  margin-top: 8px;
 }
 
 button {
@@ -61,6 +64,7 @@ button {
   border-radius: 10px;
   border: 1px solid #aaa;
   background: white;
+  cursor: pointer;
 }
 
 button:disabled {
@@ -73,10 +77,18 @@ button:disabled {
   padding: 14px;
   border: 2px solid #ccc;
   border-radius: 12px;
+  background: #fafafa;
 }
 
 .scanner-box.active {
   display: block;
+}
+
+.scan-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .scan-frame {
@@ -86,6 +98,7 @@ button:disabled {
 video {
   width: 100%;
   min-height: 260px;
+  max-height: 430px;
   object-fit: cover;
   background: black;
   border-radius: 10px;
@@ -103,61 +116,13 @@ video {
   pointer-events: none;
 }
 
-.angel-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #ddd;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.remove-button {
-  width: auto;
-  min-height: 40px;
-  margin: 0;
-  padding: 8px 12px;
-  font-size: 15px;
-}
-
-.claim-form {
-  display: none;
-  margin-top: 24px;
-  border-top: 2px solid #ddd;
-  padding-top: 20px;
-}
-
-label {
-  display: block;
-  margin-top: 16px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-input {
-  width: 100%;
-  min-height: 52px;
-  padding: 14px;
-  margin-top: 7px;
-  font-size: 18px;
-  border: 1px solid #aaa;
-  border-radius: 8px;
-}
-
-.review-item {
-  font-size: 19px;
-  padding: 8px 0;
-}
-
 #status {
   margin-top: 16px;
   padding: 14px;
   font-size: 18px;
   font-weight: bold;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #f0f0f0;
   line-height: 1.4;
 }
@@ -168,6 +133,62 @@ input {
 
 .error {
   background: #fdecec !important;
+}
+
+.angel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.remove-button {
+  width: auto;
+  min-height: 42px;
+  margin: 0;
+  padding: 8px 13px;
+  font-size: 16px;
+}
+
+.claim-form {
+  display: none;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 2px solid #ddd;
+}
+
+label {
+  display: block;
+  margin-top: 17px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  min-height: 54px;
+  padding: 14px;
+  margin-top: 7px;
+  font-size: 18px;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+}
+
+.review-box {
+  margin-top: 24px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.review-item {
+  font-size: 19px;
+  padding: 8px 0;
 }
 
 .processing-box {
@@ -191,9 +212,11 @@ input {
 }
 
 @keyframes spin {
+
   to {
     transform: rotate(360deg);
   }
+
 }
 
 .processing-message {
@@ -205,21 +228,27 @@ input {
 .processing-note {
   margin-top: 10px;
   font-size: 17px;
+  line-height: 1.4;
 }
 
 .success-screen {
   display: none;
   text-align: center;
-  padding: 20px 0;
+  padding: 24px 0;
+}
+
+.success-icon {
+  font-size: 58px;
+  margin-bottom: 10px;
 }
 
 .success-screen h2 {
   font-size: 30px;
 }
 
-.success-icon {
-  font-size: 56px;
-  margin-bottom: 12px;
+.success-screen p {
+  font-size: 19px;
+  line-height: 1.45;
 }
 
 </style>
@@ -237,13 +266,14 @@ input {
 
 <h1>Giving Tree</h1>
 
-<p>
-Scan each Angel you would like to sponsor.
+<p class="intro">
+Scan the QR code on each Angel you would like to sponsor.
+You can select more than one Angel before completing your claim.
 </p>
 
 
 <button id="scanButton">
-Scan Angel
+Scan an Angel
 </button>
 
 
@@ -251,9 +281,9 @@ Scan Angel
   id="scannerBox"
   class="scanner-box">
 
-<p>
-Point the camera at the Angel QR code.
-</p>
+<div class="scan-title">
+Point the camera at one Angel QR code.
+</div>
 
 <div class="scan-frame">
 
@@ -266,6 +296,7 @@ Point the camera at the Angel QR code.
 
 </div>
 
+
 <button id="cancelScanButton">
 Cancel Scan
 </button>
@@ -274,17 +305,17 @@ Cancel Scan
 
 
 <div id="status">
-Ready to scan.
+Ready to scan an Angel.
 </div>
 
 
-<h2>Your Angels</h2>
+<h2>Your Selected Angels</h2>
 
 <div id="angelList"></div>
 
 
 <button id="completeButton">
-Complete Claim
+Continue to Sponsor Information
 </button>
 
 
@@ -295,8 +326,12 @@ Complete Claim
 
 <h2>Sponsor Information</h2>
 
+<p>
+Enter your contact information once for all of the Angels listed below.
+</p>
 
-<label>
+
+<label for="sponsorName">
 Full Name
 </label>
 
@@ -307,7 +342,7 @@ Full Name
 >
 
 
-<label>
+<label for="sponsorEmail">
 Email Address
 </label>
 
@@ -318,7 +353,7 @@ Email Address
 >
 
 
-<label>
+<label for="sponsorPhone">
 Phone Number
 </label>
 
@@ -329,9 +364,15 @@ Phone Number
 >
 
 
-<h2>Review Your Angels</h2>
+<div class="review-box">
+
+<h2>
+Review Your Angels
+</h2>
 
 <div id="reviewList"></div>
+
+</div>
 
 
 <button id="submitClaimButton">
@@ -372,23 +413,28 @@ Please keep this page open while we confirm your Angels.
 ✓
 </div>
 
-<h2>Claim Complete!</h2>
+<h2>
+Claim Complete!
+</h2>
 
 <p id="successMessage"></p>
 
 <p>
-Thank you for supporting the Giving Tree.
+Thank you for sponsoring through the Giving Tree.
+</p>
+
+<p>
+Please follow the instructions provided with your Angel tag for purchasing and returning gifts.
 </p>
 
 <button id="startOverButton">
-Start New Claim
+Sponsor Another Angel
 </button>
 
 </div>
 
 
 </div>
-
 
 
 <script type="module">
@@ -405,47 +451,62 @@ const API_URL =
 const video =
 document.getElementById("qrVideo");
 
+
 const status =
 document.getElementById("status");
+
 
 const scannerBox =
 document.getElementById("scannerBox");
 
+
 const scanButton =
 document.getElementById("scanButton");
+
 
 const cancelScanButton =
 document.getElementById("cancelScanButton");
 
+
 const angelList =
 document.getElementById("angelList");
+
 
 const completeButton =
 document.getElementById("completeButton");
 
+
 const claimForm =
 document.getElementById("claimForm");
+
 
 const reviewList =
 document.getElementById("reviewList");
 
+
 const submitClaimButton =
 document.getElementById("submitClaimButton");
+
 
 const processingBox =
 document.getElementById("processingBox");
 
+
 const processingMessage =
 document.getElementById("processingMessage");
+
 
 const mainScreen =
 document.getElementById("mainScreen");
 
+
 const successScreen =
 document.getElementById("successScreen");
 
+
 const successMessage =
 document.getElementById("successMessage");
+
 
 const startOverButton =
 document.getElementById("startOverButton");
@@ -468,7 +529,9 @@ function saveCart() {
 
   localStorage.setItem(
     "givingTreeCart",
-    JSON.stringify(angels)
+    JSON.stringify(
+      angels
+    )
   );
 
 }
@@ -481,7 +544,9 @@ function clearCart() {
     "givingTreeCart"
   );
 
-  angels = [];
+
+  angels =
+  [];
 
 }
 
@@ -494,7 +559,9 @@ function extractAngelCode(
   try {
 
     const url =
-    new URL(scannedText);
+    new URL(
+      scannedText
+    );
 
 
     for (
@@ -529,6 +596,29 @@ function extractAngelCode(
 
   catch (error) {
 
+    if (
+      /^Angel\d+$/i.test(
+        String(
+          scannedText || ""
+        )
+      )
+    ) {
+
+      const digits =
+      scannedText.replace(
+        /\D/g,
+        ""
+      );
+
+
+      return "Angel" +
+      digits.padStart(
+        3,
+        "0"
+      );
+
+    }
+
   }
 
 
@@ -551,9 +641,18 @@ function displayCart() {
     angelList.innerHTML =
     "<p>No Angels selected yet.</p>";
 
+
+    completeButton.disabled =
+    true;
+
+
     return;
 
   }
+
+
+  completeButton.disabled =
+  false;
 
 
   angels.forEach(
@@ -579,27 +678,30 @@ function displayCart() {
       "✓ " + angel;
 
 
-      const button =
+      const removeButton =
       document.createElement(
         "button"
       );
 
 
-      button.textContent =
+      removeButton.textContent =
       "Remove";
 
 
-      button.className =
+      removeButton.className =
       "remove-button";
 
 
-      button.onclick =
+      removeButton.onclick =
       function() {
 
         angels =
         angels.filter(
-          item =>
-          item !== angel
+          function(item) {
+
+            return item !== angel;
+
+          }
         );
 
 
@@ -608,6 +710,15 @@ function displayCart() {
         displayCart();
 
         displayReview();
+
+
+        status.textContent =
+        angel +
+        " removed from your list.";
+
+
+        status.className =
+        "";
 
       };
 
@@ -618,7 +729,7 @@ function displayCart() {
 
 
       row.appendChild(
-        button
+        removeButton
       );
 
 
@@ -642,22 +753,22 @@ function displayReview() {
   angels.forEach(
     function(angel) {
 
-      const div =
+      const item =
       document.createElement(
         "div"
       );
 
 
-      div.className =
+      item.className =
       "review-item";
 
 
-      div.textContent =
+      item.textContent =
       "✓ " + angel;
 
 
       reviewList.appendChild(
-        div
+        item
       );
 
     }
@@ -667,21 +778,20 @@ function displayReview() {
 
 
 
-function jsonpOnce(
-  action,
-  values
+function checkAvailability(
+  angel
 ) {
 
   return new Promise(
     function(resolve, reject) {
 
-      const callback =
-      "gt_" +
+      const callbackName =
+      "givingTreeCallback_" +
       Date.now() +
       "_" +
       Math.floor(
         Math.random() *
-        1000000
+        100000
       );
 
 
@@ -697,9 +807,10 @@ function jsonpOnce(
 
           cleanup();
 
+
           reject(
             new Error(
-              "The Giving Tree database did not respond."
+              "The availability check timed out."
             )
           );
 
@@ -727,7 +838,7 @@ function jsonpOnce(
         try {
 
           delete window[
-            callback
+            callbackName
           ];
 
         }
@@ -740,13 +851,15 @@ function jsonpOnce(
 
 
       window[
-        callback
+        callbackName
       ] =
       function(result) {
 
         cleanup();
 
-        resolve(result);
+        resolve(
+          result
+        );
 
       };
 
@@ -756,55 +869,28 @@ function jsonpOnce(
 
         cleanup();
 
+
         reject(
           new Error(
-            "The Giving Tree database could not be reached."
+            "Unable to contact the Giving Tree database."
           )
         );
 
       };
 
 
-      const params =
-      new URLSearchParams();
-
-
-      params.set(
-        "mode",
-        "api"
-      );
-
-
-      params.set(
-        "action",
-        action
-      );
-
-
-      Object.keys(
-        values
-      ).forEach(
-        function(key) {
-
-          params.set(
-            key,
-            values[key]
-          );
-
-        }
-      );
-
-
-      params.set(
-        "callback",
-        callback
-      );
-
-
       script.src =
       API_URL +
-      "?" +
-      params.toString();
+      "?mode=api" +
+      "&action=check" +
+      "&angel=" +
+      encodeURIComponent(
+        angel
+      ) +
+      "&callback=" +
+      encodeURIComponent(
+        callbackName
+      );
 
 
       document.body.appendChild(
@@ -818,370 +904,133 @@ function jsonpOnce(
 
 
 
-async function jsonpWithRetry(
-  action,
-  values
+function checkSubmissionStatus(
+  token
 ) {
 
-  try {
+  return new Promise(
+    function(resolve, reject) {
 
-    return await jsonpOnce(
-      action,
-      values
-    );
-
-  }
-
-  catch (firstError) {
-
-    status.textContent =
-    "Still checking. Please wait...";
+      const callbackName =
+      "givingTreeStatus_" +
+      Date.now() +
+      "_" +
+      Math.floor(
+        Math.random() *
+        100000
+      );
 
 
-    await new Promise(
-      resolve =>
+      const script =
+      document.createElement(
+        "script"
+      );
+
+
+      const timeout =
       setTimeout(
-        resolve,
-        1000
-      )
-    );
+        function() {
+
+          cleanup();
 
 
-    return await jsonpOnce(
-      action,
-      values
-    );
+          reject(
+            new Error(
+              "Claim confirmation timed out."
+            )
+          );
 
-  }
-
-}
-
-
-
-async function stopScanner() {
-
-  try {
-
-    await scanner.stop();
-
-  }
-
-  catch (error) {
-
-  }
+        },
+        30000
+      );
 
 
-  scannerBox.classList.remove(
-    "active"
+      function cleanup() {
+
+        clearTimeout(
+          timeout
+        );
+
+
+        if (
+          script.parentNode
+        ) {
+
+          script.remove();
+
+        }
+
+
+        try {
+
+          delete window[
+            callbackName
+          ];
+
+        }
+
+        catch (error) {
+
+        }
+
+      }
+
+
+      window[
+        callbackName
+      ] =
+      function(result) {
+
+        cleanup();
+
+        resolve(
+          result
+        );
+
+      };
+
+
+      script.onerror =
+      function() {
+
+        cleanup();
+
+
+        reject(
+          new Error(
+            "Unable to confirm the claim."
+          )
+        );
+
+      };
+
+
+      script.src =
+      API_URL +
+      "?mode=api" +
+      "&action=status" +
+      "&token=" +
+      encodeURIComponent(
+        token
+      ) +
+      "&callback=" +
+      encodeURIComponent(
+        callbackName
+      );
+
+
+      document.body.appendChild(
+        script
+      );
+
+    }
   );
 
 }
 
 
 
-async function checkAngel(
-  angel
-) {
-
-  return await jsonpWithRetry(
-    "check",
-    {
-      angel: angel
-    }
-  );
-
-}
-
-
-
-async function handleScannedAngel(
-  angel
-) {
-
-  if (
-    angels.includes(
-      angel
-    )
-  ) {
-
-    await stopScanner();
-
-
-    status.textContent =
-    angel +
-    " is already in your list.";
-
-
-    status.className =
-    "error";
-
-
-    return;
-
-  }
-
-
-  status.textContent =
-  "Checking " +
-  angel +
-  "...";
-
-
-  try {
-
-    const result =
-    await checkAngel(
-      angel
-    );
-
-
-    await stopScanner();
-
-
-    if (
-      !result.valid ||
-      !result.available
-    ) {
-
-      status.textContent =
-      result.message;
-
-
-      status.className =
-      "error";
-
-
-      return;
-
-    }
-
-
-    angels.push(
-      angel
-    );
-
-
-    saveCart();
-
-    displayCart();
-
-
-    status.textContent =
-    angel +
-    " added successfully.";
-
-
-    status.className =
-    "success";
-
-  }
-
-  catch (error) {
-
-    await stopScanner();
-
-
-    status.textContent =
-    "Unable to check this Angel. " +
-    error.message;
-
-
-    status.className =
-    "error";
-
-  }
-
-}
-
-
-
-const scanner =
-new QrScanner(
-
-  video,
-
-  async function(result) {
-
-    if (
-      scanBeingProcessed
-    ) {
-
-      return;
-
-    }
-
-
-    scanBeingProcessed =
-    true;
-
-
-    const angel =
-    extractAngelCode(
-      result.data
-    );
-
-
-    if (!angel) {
-
-      await stopScanner();
-
-
-      status.textContent =
-      "This is not a valid Giving Tree QR code.";
-
-
-      status.className =
-      "error";
-
-
-      scanBeingProcessed =
-      false;
-
-
-      return;
-
-    }
-
-
-    await handleScannedAngel(
-      angel
-    );
-
-
-    scanBeingProcessed =
-    false;
-
-  },
-
-
-  {
-
-    preferredCamera:
-    "environment",
-
-    highlightScanRegion:
-    true,
-
-    highlightCodeOutline:
-    true,
-
-    returnDetailedScanResult:
-    true
-
-  }
-
-);
-
-
-
-scanButton.onclick =
-async function() {
-
-  scannerBox.classList.add(
-    "active"
-  );
-
-
-  status.textContent =
-  "Starting scanner...";
-
-
-  status.className =
-  "";
-
-
-  scanBeingProcessed =
-  false;
-
-
-  try {
-
-    await scanner.start();
-
-
-    status.textContent =
-    "Camera ready.";
-
-  }
-
-  catch (error) {
-
-    scannerBox.classList.remove(
-      "active"
-    );
-
-
-    status.textContent =
-    "Camera could not start.";
-
-
-    status.className =
-    "error";
-
-  }
-
-};
-
-
-
-cancelScanButton.onclick =
-async function() {
-
-  await stopScanner();
-
-
-  status.textContent =
-  "Scan cancelled.";
-
-};
-
-
-
-completeButton.onclick =
-function() {
-
-  if (
-    angels.length === 0
-  ) {
-
-    status.textContent =
-    "Please scan at least one Angel.";
-
-
-    status.className =
-    "error";
-
-
-    return;
-
-  }
-
-
-  displayReview();
-
-
-  claimForm.style.display =
-  "block";
-
-
-  claimForm.scrollIntoView({
-    behavior:
-    "smooth"
-  });
-
-
-  status.textContent =
-  "Please complete your sponsor information.";
-
-
-  status.className =
-  "";
-
-};
-
-
-
-function createToken() {
+function makeToken() {
 
   return (
     Date.now().toString(36) +
@@ -1189,6 +1038,81 @@ function createToken() {
     Math.random()
       .toString(36)
       .substring(2)
+  );
+
+}
+
+
+
+async function waitForSubmission(
+  token
+) {
+
+  for (
+    let attempt = 0;
+    attempt < 60;
+    attempt++
+  ) {
+
+    try {
+
+      const result =
+      await checkSubmissionStatus(
+        token
+      );
+
+
+      if (
+        result.done
+      ) {
+
+        return result;
+
+      }
+
+    }
+
+    catch (error) {
+
+    }
+
+
+    if (
+      attempt === 2
+    ) {
+
+      processingMessage.textContent =
+      "Almost done. We are confirming your Angels...";
+
+    }
+
+
+    if (
+      attempt === 6
+    ) {
+
+      processingMessage.textContent =
+      "Your claim is still processing. Please keep this page open.";
+
+    }
+
+
+    await new Promise(
+      function(resolve) {
+
+        setTimeout(
+          resolve,
+          500
+        );
+
+      }
+    );
+
+  }
+
+
+  throw new Error(
+    "Your claim was submitted, but confirmation is taking longer than expected."
   );
 
 }
@@ -1330,78 +1254,391 @@ function postClaim(
 
 
 
-async function waitForClaim(
-  token
-) {
+async function closeScanner() {
 
-  for (
-    let attempt = 0;
-    attempt < 60;
-    attempt++
-  ) {
+  try {
 
-    try {
+    await scanner.stop();
 
-      const result =
-      await jsonpWithRetry(
-        "status",
-        {
-          token: token
-        }
-      );
+  }
 
-
-      if (
-        result.done
-      ) {
-
-        return result;
-
-      }
-
-    }
-
-    catch (error) {
-
-    }
-
-
-    if (
-      attempt === 2
-    ) {
-
-      processingMessage.textContent =
-      "Almost done. We are confirming your Angels...";
-
-    }
-
-
-    if (
-      attempt === 6
-    ) {
-
-      processingMessage.textContent =
-      "Your claim is still processing. Please keep this page open.";
-
-    }
-
-
-    await new Promise(
-      resolve =>
-      setTimeout(
-        resolve,
-        500
-      )
-    );
+  catch (error) {
 
   }
 
 
-  throw new Error(
-    "Your claim was sent, but confirmation is taking longer than expected."
+  scannerBox.classList.remove(
+    "active"
   );
 
+
+  scanButton.style.display =
+  "block";
+
+
+  scanButton.textContent =
+  angels.length === 0
+    ? "Scan an Angel"
+    : "Scan Another Angel";
+
 }
+
+
+
+async function processScannedAngel(
+  angel
+) {
+
+  if (
+    angels.includes(
+      angel
+    )
+  ) {
+
+    await closeScanner();
+
+
+    status.textContent =
+    angel +
+    " is already in your selected Angels.";
+
+
+    status.className =
+    "error";
+
+
+    return;
+
+  }
+
+
+  status.textContent =
+  "Checking " +
+  angel +
+  " availability...";
+
+
+  status.className =
+  "";
+
+
+  try {
+
+    let result;
+
+
+    try {
+
+      result =
+      await checkAvailability(
+        angel
+      );
+
+    }
+
+    catch (firstError) {
+
+      status.textContent =
+      "Still checking. Please wait...";
+
+
+      await new Promise(
+        function(resolve) {
+
+          setTimeout(
+            resolve,
+            1000
+          );
+
+        }
+      );
+
+
+      result =
+      await checkAvailability(
+        angel
+      );
+
+    }
+
+
+    await closeScanner();
+
+
+    if (
+      !result.valid
+    ) {
+
+      status.textContent =
+      result.message;
+
+
+      status.className =
+      "error";
+
+
+      return;
+
+    }
+
+
+    if (
+      !result.available
+    ) {
+
+      status.textContent =
+      result.message;
+
+
+      status.className =
+      "error";
+
+
+      return;
+
+    }
+
+
+    angels.push(
+      angel
+    );
+
+
+    saveCart();
+
+    displayCart();
+
+
+    status.textContent =
+    angel +
+    " added successfully.";
+
+
+    status.className =
+    "success";
+
+  }
+
+  catch (error) {
+
+    await closeScanner();
+
+
+    status.textContent =
+    "Unable to check this Angel. " +
+    error.message;
+
+
+    status.className =
+    "error";
+
+  }
+
+}
+
+
+
+const scanner =
+new QrScanner(
+
+  video,
+
+  async function(
+    scanResult
+  ) {
+
+    if (
+      scanBeingProcessed
+    ) {
+
+      return;
+
+    }
+
+
+    scanBeingProcessed =
+    true;
+
+
+    const angel =
+    extractAngelCode(
+      scanResult.data
+    );
+
+
+    if (!angel) {
+
+      await closeScanner();
+
+
+      status.textContent =
+      "This is not a valid Giving Tree Angel QR code.";
+
+
+      status.className =
+      "error";
+
+
+      scanBeingProcessed =
+      false;
+
+
+      return;
+
+    }
+
+
+    await processScannedAngel(
+      angel
+    );
+
+
+    scanBeingProcessed =
+    false;
+
+  },
+
+
+  {
+
+    preferredCamera:
+    "environment",
+
+    highlightScanRegion:
+    true,
+
+    highlightCodeOutline:
+    true,
+
+    returnDetailedScanResult:
+    true
+
+  }
+
+);
+
+
+
+scanButton.onclick =
+async function() {
+
+  scanBeingProcessed =
+  false;
+
+
+  scannerBox.classList.add(
+    "active"
+  );
+
+
+  scanButton.style.display =
+  "none";
+
+
+  status.textContent =
+  "Starting camera...";
+
+
+  status.className =
+  "";
+
+
+  try {
+
+    await scanner.start();
+
+
+    status.textContent =
+    "Camera ready. Scan one Angel QR code.";
+
+  }
+
+  catch (error) {
+
+    scannerBox.classList.remove(
+      "active"
+    );
+
+
+    scanButton.style.display =
+    "block";
+
+
+    status.textContent =
+    "Camera could not start.";
+
+
+    status.className =
+    "error";
+
+  }
+
+};
+
+
+
+cancelScanButton.onclick =
+async function() {
+
+  await closeScanner();
+
+
+  scanBeingProcessed =
+  false;
+
+
+  status.textContent =
+  "Scan cancelled.";
+
+
+  status.className =
+  "";
+
+};
+
+
+
+completeButton.onclick =
+function() {
+
+  if (
+    angels.length === 0
+  ) {
+
+    status.textContent =
+    "Please scan at least one Angel first.";
+
+
+    status.className =
+    "error";
+
+
+    return;
+
+  }
+
+
+  displayReview();
+
+
+  claimForm.style.display =
+  "block";
+
+
+  claimForm.scrollIntoView({
+    behavior:
+    "smooth"
+  });
+
+
+  status.textContent =
+  "Please complete your sponsor information.";
+
+
+  status.className =
+  "";
+
+};
 
 
 
@@ -1442,7 +1679,7 @@ async function() {
   ) {
 
     status.textContent =
-    "Please complete all sponsor information.";
+    "Please complete your name, email address, and phone number.";
 
 
     status.className =
@@ -1481,11 +1718,12 @@ async function() {
 
 
   const token =
-  createToken();
+  makeToken();
 
 
   postClaim(
     {
+
       name:
       name,
 
@@ -1497,6 +1735,7 @@ async function() {
 
       angels:
       angels
+
     },
 
     token
@@ -1506,7 +1745,7 @@ async function() {
   try {
 
     const result =
-    await waitForClaim(
+    await waitForSubmission(
       token
     );
 
@@ -1553,8 +1792,38 @@ async function() {
 
     displayCart();
 
+    displayReview();
+
+
+    document
+      .getElementById(
+        "sponsorName"
+      )
+      .value =
+      "";
+
+
+    document
+      .getElementById(
+        "sponsorEmail"
+      )
+      .value =
+      "";
+
+
+    document
+      .getElementById(
+        "sponsorPhone"
+      )
+      .value =
+      "";
+
 
     processingBox.style.display =
+    "none";
+
+
+    claimForm.style.display =
     "none";
 
 
@@ -1567,9 +1836,11 @@ async function() {
 
 
     successMessage.textContent =
-    "You successfully claimed " +
-    count +
-    " Angel(s).";
+    count === 1
+      ? "You successfully claimed 1 Angel."
+      : "You successfully claimed " +
+        count +
+        " Angels.";
 
   }
 
@@ -1609,7 +1880,10 @@ function() {
 
   clearCart();
 
+
   displayCart();
+
+  displayReview();
 
 
   claimForm.style.display =
@@ -1620,16 +1894,20 @@ function() {
   "none";
 
 
-  mainScreen.style.display =
-  "block";
-
-
   successScreen.style.display =
   "none";
 
 
+  mainScreen.style.display =
+  "block";
+
+
+  scanButton.textContent =
+  "Scan an Angel";
+
+
   status.textContent =
-  "Ready to scan.";
+  "Ready to scan an Angel.";
 
 
   status.className =
@@ -1645,7 +1923,7 @@ function() {
 
 
   completeButton.disabled =
-  false;
+  true;
 
 };
 
@@ -1653,6 +1931,15 @@ function() {
 
 displayCart();
 
+
+if (
+  angels.length > 0
+) {
+
+  scanButton.textContent =
+  "Scan Another Angel";
+
+}
 
 </script>
 
