@@ -110,6 +110,69 @@ video {
   pointer-events: none;
 }
 
+.scan-flash {
+  position: fixed;
+  inset: 0;
+  background: rgba(85, 190, 90, .28);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.scan-flash.active {
+  animation: flashScreen .45s ease-out;
+}
+
+@keyframes flashScreen {
+
+  0% {
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+
+}
+
+.scan-banner {
+  display: none;
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  width: calc(100% - 30px);
+  max-width: 580px;
+  padding: 22px 16px;
+  background: #eef8ee;
+  border: 3px solid #777;
+  border-radius: 14px;
+  text-align: center;
+  z-index: 9999;
+  box-shadow: 0 6px 22px rgba(0,0,0,.22);
+}
+
+.scan-banner.active {
+  display: block;
+}
+
+.scan-banner-main {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.scan-banner-next {
+  display: block;
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
 #status {
   margin-top: 14px;
   padding: 14px;
@@ -198,14 +261,8 @@ video {
   text-align: right;
 }
 
-.pending {
-  font-weight: bold;
-}
-
-.saved {
-  font-weight: bold;
-}
-
+.pending,
+.saved,
 .problem {
   font-weight: bold;
 }
@@ -254,6 +311,23 @@ video {
 </head>
 
 <body>
+
+<div id="scanFlash" class="scan-flash"></div>
+
+<div id="scanBanner" class="scan-banner">
+
+<span
+  id="scanBannerMain"
+  class="scan-banner-main">
+✓ SCANNED
+</span>
+
+<span class="scan-banner-next">
+NEXT GIFT
+</span>
+
+</div>
+
 
 <div class="card">
 
@@ -340,7 +414,6 @@ Needs Attention
 </div>
 
 
-
 <div class="manual-section">
 
 <h2>Manual Check In</h2>
@@ -365,7 +438,6 @@ Check In
 </div>
 
 </div>
-
 
 
 <div class="queue-section">
@@ -433,14 +505,23 @@ document.getElementById("pendingCount");
 const problemCount =
 document.getElementById("problemCount");
 
+const scanBanner =
+document.getElementById("scanBanner");
+
+const scanBannerMain =
+document.getElementById("scanBannerMain");
+
+const scanFlash =
+document.getElementById("scanFlash");
+
 
 let returnQueue = [];
-
-let scannerRunning = false;
 
 let lastScannedAngel = "";
 
 let lastScanTime = 0;
+
+let bannerTimer = null;
 
 
 
@@ -522,6 +603,72 @@ function extractAngelCode(
 
 
   return "";
+
+}
+
+
+
+function showScanConfirmation(
+  angel
+) {
+
+  scanBannerMain.textContent =
+  "✓ " +
+  angel +
+  " SCANNED";
+
+
+  scanBanner.classList.add(
+    "active"
+  );
+
+
+  scanFlash.classList.remove(
+    "active"
+  );
+
+
+  void scanFlash.offsetWidth;
+
+
+  scanFlash.classList.add(
+    "active"
+  );
+
+
+  if (
+    navigator.vibrate
+  ) {
+
+    navigator.vibrate(
+      100
+    );
+
+  }
+
+
+  if (
+    bannerTimer
+  ) {
+
+    clearTimeout(
+      bannerTimer
+    );
+
+  }
+
+
+  bannerTimer =
+  setTimeout(
+    function() {
+
+      scanBanner.classList.remove(
+        "active"
+      );
+
+    },
+    1100
+  );
 
 }
 
@@ -1222,9 +1369,14 @@ function queueReturn(
   displayQueue();
 
 
+  showScanConfirmation(
+    angel
+  );
+
+
   setStatus(
     angel +
-    " scanned. Ready for next gift.",
+    " scanned. Move to the next gift.",
     "ready"
   );
 
@@ -1272,7 +1424,7 @@ new QrScanner(
       lastScannedAngel &&
       now -
       lastScanTime <
-      4000
+      6000
     ) {
 
       return;
@@ -1334,10 +1486,6 @@ async function() {
     await scanner.start();
 
 
-    scannerRunning =
-    true;
-
-
     startButton.style.display =
     "none";
 
@@ -1379,10 +1527,6 @@ async function() {
   catch (error) {
 
   }
-
-
-  scannerRunning =
-  false;
 
 
   scannerBox.classList.remove(
