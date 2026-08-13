@@ -1,1 +1,1188 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>Giving Tree Returns</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
+
+.card {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 30px;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 22px;
+  margin-top: 28px;
+}
+
+p {
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+button {
+  width: 100%;
+  min-height: 58px;
+  padding: 14px;
+  margin-top: 16px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  border: 1px solid #aaa;
+  background: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .6;
+}
+
+.scanner-box {
+  display: none;
+  margin-top: 18px;
+  padding: 14px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.scanner-box.active {
+  display: block;
+}
+
+.scan-frame {
+  position: relative;
+}
+
+video {
+  width: 100%;
+  min-height: 260px;
+  object-fit: cover;
+  background: black;
+  border-radius: 10px;
+}
+
+.scan-guide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 3px solid white;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+#status {
+  margin-top: 16px;
+  padding: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  background: #f0f0f0;
+  line-height: 1.4;
+}
+
+.success {
+  background: #eef8ee !important;
+}
+
+.error {
+  background: #fdecec !important;
+}
+
+.processing {
+  background: #f7f7f7 !important;
+}
+
+.manual-section {
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 2px solid #ddd;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px;
+  margin-top: 7px;
+  font-size: 20px;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+}
+
+.history {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 2px solid #ddd;
+}
+
+.history-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+
+<h1>Giving Tree Returns</h1>
+
+<p>
+Scan the Angel QR code to check in the gift.
+</p>
+
+
+<button id="scanButton">
+Scan Gift
+</button>
+
+
+<div
+  id="scannerBox"
+  class="scanner-box">
+
+<p>
+Point the camera at the Angel QR code.
+</p>
+
+
+<div class="scan-frame">
+
+<video
+  id="qrVideo"
+  playsinline>
+</video>
+
+<div class="scan-guide"></div>
+
+</div>
+
+
+<button id="cancelScanButton">
+Cancel Scan
+</button>
+
+</div>
+
+
+<div id="status">
+Ready to check in a gift.
+</div>
+
+
+
+<div class="manual-section">
+
+<h2>Missing or Damaged Tag?</h2>
+
+<p>
+Enter the Angel number manually.
+</p>
+
+<label for="manualAngel">
+Angel Number
+</label>
+
+<input
+  id="manualAngel"
+  type="text"
+  inputmode="numeric"
+  placeholder="Example: 777"
+>
+
+<button id="manualReturnButton">
+Check In Gift Manually
+</button>
+
+</div>
+
+
+
+<div class="history">
+
+<h2>This Session</h2>
+
+<div id="historyList">
+<p>No gifts checked in yet.</p>
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<script type="module">
+
+
+import QrScanner
+from "https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.min.js";
+
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxZp0fNOC7QPDzvOrWCezJl8jKH0ZrSHGnmnEfnnuu44Sr8HrN9NFa-EZlz4GRrQVOF/exec";
+
+
+const video =
+document.getElementById("qrVideo");
+
+const scannerBox =
+document.getElementById("scannerBox");
+
+const scanButton =
+document.getElementById("scanButton");
+
+const cancelScanButton =
+document.getElementById("cancelScanButton");
+
+const status =
+document.getElementById("status");
+
+const manualAngel =
+document.getElementById("manualAngel");
+
+const manualReturnButton =
+document.getElementById("manualReturnButton");
+
+const historyList =
+document.getElementById("historyList");
+
+
+let scanBeingProcessed =
+false;
+
+
+let sessionHistory =
+[];
+
+
+
+function extractAngelCode(
+  scannedText
+) {
+
+  try {
+
+    const url =
+    new URL(scannedText);
+
+
+    for (
+      const value
+      of url.searchParams.values()
+    ) {
+
+      if (
+        /^Angel\d+$/i.test(
+          value
+        )
+      ) {
+
+        const digits =
+        value.replace(
+          /\D/g,
+          ""
+        );
+
+
+        return "Angel" +
+        digits.padStart(
+          3,
+          "0"
+        );
+
+      }
+
+    }
+
+  }
+
+  catch (error) {
+
+    const digits =
+    String(scannedText || "")
+      .replace(
+        /\D/g,
+        ""
+      );
+
+
+    if (digits) {
+
+      return "Angel" +
+      digits.padStart(
+        3,
+        "0"
+      );
+
+    }
+
+  }
+
+
+  return "";
+
+}
+
+
+
+function normalizeManualAngel(
+  value
+) {
+
+  const digits =
+  String(value || "")
+    .replace(
+      /\D/g,
+      ""
+    );
+
+
+  if (!digits) {
+
+    return "";
+
+  }
+
+
+  return "Angel" +
+  digits.padStart(
+    3,
+    "0"
+  );
+
+}
+
+
+
+function createToken() {
+
+  return (
+    Date.now().toString(36) +
+    "_" +
+    Math.random()
+      .toString(36)
+      .substring(2)
+  );
+
+}
+
+
+
+function addHistory(
+  angel,
+  message,
+  success
+) {
+
+  sessionHistory.unshift({
+    angel: angel,
+    message: message,
+    success: success
+  });
+
+
+  displayHistory();
+
+}
+
+
+
+function displayHistory() {
+
+  historyList.innerHTML =
+  "";
+
+
+  if (
+    sessionHistory.length === 0
+  ) {
+
+    historyList.innerHTML =
+    "<p>No gifts checked in yet.</p>";
+
+    return;
+
+  }
+
+
+  sessionHistory.forEach(
+    function(item) {
+
+      const div =
+      document.createElement(
+        "div"
+      );
+
+
+      div.className =
+      "history-item";
+
+
+      div.textContent =
+      item.angel +
+      " - " +
+      item.message;
+
+
+      historyList.appendChild(
+        div
+      );
+
+    }
+  );
+
+}
+
+
+
+function jsonpOnce(
+  action,
+  values
+) {
+
+  return new Promise(
+    function(resolve, reject) {
+
+      const callback =
+      "gtr_" +
+      Date.now() +
+      "_" +
+      Math.floor(
+        Math.random() *
+        1000000
+      );
+
+
+      const script =
+      document.createElement(
+        "script"
+      );
+
+
+      const timeout =
+      setTimeout(
+        function() {
+
+          cleanup();
+
+
+          reject(
+            new Error(
+              "The Giving Tree database did not respond."
+            )
+          );
+
+        },
+        30000
+      );
+
+
+      function cleanup() {
+
+        clearTimeout(
+          timeout
+        );
+
+
+        if (
+          script.parentNode
+        ) {
+
+          script.remove();
+
+        }
+
+
+        try {
+
+          delete window[
+            callback
+          ];
+
+        }
+
+        catch (error) {
+
+        }
+
+      }
+
+
+      window[
+        callback
+      ] =
+      function(result) {
+
+        cleanup();
+
+        resolve(
+          result
+        );
+
+      };
+
+
+      script.onerror =
+      function() {
+
+        cleanup();
+
+
+        reject(
+          new Error(
+            "The Giving Tree database could not be reached."
+          )
+        );
+
+      };
+
+
+      const params =
+      new URLSearchParams();
+
+
+      params.set(
+        "mode",
+        "api"
+      );
+
+
+      params.set(
+        "action",
+        action
+      );
+
+
+      Object.keys(
+        values
+      ).forEach(
+        function(key) {
+
+          params.set(
+            key,
+            values[key]
+          );
+
+        }
+      );
+
+
+      params.set(
+        "callback",
+        callback
+      );
+
+
+      script.src =
+      API_URL +
+      "?" +
+      params.toString();
+
+
+      document.body.appendChild(
+        script
+      );
+
+    }
+  );
+
+}
+
+
+
+async function jsonpWithRetry(
+  action,
+  values
+) {
+
+  try {
+
+    return await jsonpOnce(
+      action,
+      values
+    );
+
+  }
+
+  catch (firstError) {
+
+    status.textContent =
+    "Still processing. Please wait...";
+
+
+    await new Promise(
+      resolve =>
+      setTimeout(
+        resolve,
+        1000
+      )
+    );
+
+
+    return await jsonpOnce(
+      action,
+      values
+    );
+
+  }
+
+}
+
+
+
+function postReturn(
+  angel,
+  token
+) {
+
+  const iframeName =
+  "returnFrame_" +
+  Date.now();
+
+
+  const iframe =
+  document.createElement(
+    "iframe"
+  );
+
+
+  iframe.name =
+  iframeName;
+
+
+  iframe.style.display =
+  "none";
+
+
+  document.body.appendChild(
+    iframe
+  );
+
+
+  const form =
+  document.createElement(
+    "form"
+  );
+
+
+  form.method =
+  "POST";
+
+
+  form.action =
+  API_URL;
+
+
+  form.target =
+  iframeName;
+
+
+  form.style.display =
+  "none";
+
+
+  const fields = {
+
+    type:
+    "return",
+
+    token:
+    token,
+
+    angel:
+    angel
+
+  };
+
+
+  Object.keys(
+    fields
+  ).forEach(
+    function(key) {
+
+      const input =
+      document.createElement(
+        "input"
+      );
+
+
+      input.type =
+      "hidden";
+
+
+      input.name =
+      key;
+
+
+      input.value =
+      fields[key];
+
+
+      form.appendChild(
+        input
+      );
+
+    }
+  );
+
+
+  document.body.appendChild(
+    form
+  );
+
+
+  form.submit();
+
+
+  setTimeout(
+    function() {
+
+      form.remove();
+
+    },
+    2000
+  );
+
+
+  setTimeout(
+    function() {
+
+      iframe.remove();
+
+    },
+    60000
+  );
+
+}
+
+
+
+async function waitForReturn(
+  token
+) {
+
+  for (
+    let attempt = 0;
+    attempt < 60;
+    attempt++
+  ) {
+
+    try {
+
+      const result =
+      await jsonpWithRetry(
+        "returnStatus",
+        {
+          token: token
+        }
+      );
+
+
+      if (
+        result.done
+      ) {
+
+        return result;
+
+      }
+
+    }
+
+    catch (error) {
+
+    }
+
+
+    await new Promise(
+      resolve =>
+      setTimeout(
+        resolve,
+        500
+      )
+    );
+
+  }
+
+
+  throw new Error(
+    "The return was submitted, but confirmation is taking longer than expected."
+  );
+
+}
+
+
+
+async function stopScanner() {
+
+  try {
+
+    await scanner.stop();
+
+  }
+
+  catch (error) {
+
+  }
+
+
+  scannerBox.classList.remove(
+    "active"
+  );
+
+}
+
+
+
+async function processGiftReturn(
+  angel
+) {
+
+  status.textContent =
+  "Checking in " +
+  angel +
+  "...";
+
+
+  status.className =
+  "processing";
+
+
+  scanButton.disabled =
+  true;
+
+
+  manualReturnButton.disabled =
+  true;
+
+
+  const token =
+  createToken();
+
+
+  postReturn(
+    angel,
+    token
+  );
+
+
+  try {
+
+    const result =
+    await waitForReturn(
+      token
+    );
+
+
+    if (
+      result.success
+    ) {
+
+      status.textContent =
+      result.message;
+
+
+      status.className =
+      "success";
+
+
+      addHistory(
+        angel,
+        "Returned",
+        true
+      );
+
+    }
+
+    else {
+
+      status.textContent =
+      result.message;
+
+
+      status.className =
+      "error";
+
+
+      addHistory(
+        angel,
+        result.duplicate
+          ? "Duplicate Return"
+          : "Not Accepted",
+        false
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    status.textContent =
+    error.message;
+
+
+    status.className =
+    "error";
+
+  }
+
+
+  scanButton.disabled =
+  false;
+
+
+  manualReturnButton.disabled =
+  false;
+
+}
+
+
+
+const scanner =
+new QrScanner(
+
+  video,
+
+  async function(result) {
+
+    if (
+      scanBeingProcessed
+    ) {
+
+      return;
+
+    }
+
+
+    scanBeingProcessed =
+    true;
+
+
+    const angel =
+    extractAngelCode(
+      result.data
+    );
+
+
+    await stopScanner();
+
+
+    if (!angel) {
+
+      status.textContent =
+      "This is not a valid Giving Tree Angel QR code.";
+
+
+      status.className =
+      "error";
+
+
+      scanBeingProcessed =
+      false;
+
+
+      return;
+
+    }
+
+
+    await processGiftReturn(
+      angel
+    );
+
+
+    scanBeingProcessed =
+    false;
+
+  },
+
+
+  {
+
+    preferredCamera:
+    "environment",
+
+    highlightScanRegion:
+    true,
+
+    highlightCodeOutline:
+    true,
+
+    returnDetailedScanResult:
+    true
+
+  }
+
+);
+
+
+
+scanButton.onclick =
+async function() {
+
+  scanBeingProcessed =
+  false;
+
+
+  scannerBox.classList.add(
+    "active"
+  );
+
+
+  status.textContent =
+  "Starting scanner...";
+
+
+  status.className =
+  "";
+
+
+  try {
+
+    await scanner.start();
+
+
+    status.textContent =
+    "Camera ready. Scan an Angel QR.";
+
+
+  }
+
+  catch (error) {
+
+    scannerBox.classList.remove(
+      "active"
+    );
+
+
+    status.textContent =
+    "Camera could not start.";
+
+
+    status.className =
+    "error";
+
+  }
+
+};
+
+
+
+cancelScanButton.onclick =
+async function() {
+
+  await stopScanner();
+
+
+  scanBeingProcessed =
+  false;
+
+
+  status.textContent =
+  "Scan cancelled.";
+
+
+  status.className =
+  "";
+
+};
+
+
+
+manualReturnButton.onclick =
+async function() {
+
+  const angel =
+  normalizeManualAngel(
+    manualAngel.value
+  );
+
+
+  if (!angel) {
+
+    status.textContent =
+    "Please enter a valid Angel number.";
+
+
+    status.className =
+    "error";
+
+
+    return;
+
+  }
+
+
+  manualAngel.value =
+  "";
+
+
+  await processGiftReturn(
+    angel
+  );
+
+};
+
+
+
+displayHistory();
+
+
+</script>
+
+
+</body>
+
+</html>
