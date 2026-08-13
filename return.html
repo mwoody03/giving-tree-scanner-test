@@ -61,6 +61,10 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: .55;
+}
+
 .scanner-box {
   display: none;
   margin-top: 14px;
@@ -261,6 +265,7 @@ video {
 }
 
 @media (max-width: 480px) {
+
   .manual-row {
     flex-direction: column;
   }
@@ -268,6 +273,7 @@ video {
   .manual-row button {
     width: 100%;
   }
+
 }
 
 </style>
@@ -287,7 +293,7 @@ video {
 </span>
 
 <span class="scan-banner-next">
-NEXT GIFT
+READY FOR NEXT GIFT
 </span>
 
 </div>
@@ -298,12 +304,12 @@ NEXT GIFT
 <h1>Giving Tree Returns</h1>
 
 <p class="subtitle">
-Continuous Gift Check In
+Gift Check In
 </p>
 
 
-<button id="startButton">
-Start Return Scanner
+<button id="scanButton">
+Scan Gift
 </button>
 
 
@@ -312,7 +318,7 @@ Start Return Scanner
   class="scanner-box">
 
 <div class="scan-title">
-Keep scanning. Returns save automatically.
+Point the camera at one Angel QR code.
 </div>
 
 <div class="scan-frame">
@@ -326,8 +332,8 @@ Keep scanning. Returns save automatically.
 
 </div>
 
-<button id="stopButton">
-Stop Scanner
+<button id="cancelScanButton">
+Cancel Scan
 </button>
 
 </div>
@@ -336,7 +342,7 @@ Stop Scanner
 <div
   id="status"
   class="status-ready">
-Ready to begin.
+Ready to check in a gift.
 </div>
 
 
@@ -423,11 +429,11 @@ document.getElementById("qrVideo");
 const scannerBox =
 document.getElementById("scannerBox");
 
-const startButton =
-document.getElementById("startButton");
+const scanButton =
+document.getElementById("scanButton");
 
-const stopButton =
-document.getElementById("stopButton");
+const cancelScanButton =
+document.getElementById("cancelScanButton");
 
 const status =
 document.getElementById("status");
@@ -466,9 +472,7 @@ let batchTimer = null;
 
 let batchRunning = false;
 
-let lastScannedAngel = "";
-
-let lastScanTime = 0;
+let scanBeingProcessed = false;
 
 let bannerTimer = null;
 
@@ -621,16 +625,6 @@ function restoreLocalQueue() {
     stored.forEach(
       function(item) {
 
-        /*
-        If the browser closed during a send,
-        we cannot safely assume success or failure.
-
-        Put it back in the queue.
-        The backend's duplicate protection
-        will protect the database if it had
-        already been saved.
-        */
-
         item.state =
         "queued";
 
@@ -715,7 +709,7 @@ function showScanConfirmation(
       );
 
     },
-    1000
+    1100
   );
 
 }
@@ -776,7 +770,9 @@ function displayQueue() {
     queueList.textContent =
     "No gifts scanned yet.";
 
+
     updateCounters();
+
 
     return;
 
@@ -934,6 +930,35 @@ function setStatus(
     );
 
   }
+
+}
+
+
+
+async function closeScanner() {
+
+  try {
+
+    await scanner.stop();
+
+  }
+
+  catch (error) {
+
+  }
+
+
+  scannerBox.classList.remove(
+    "active"
+  );
+
+
+  scanButton.style.display =
+  "block";
+
+
+  scanButton.textContent =
+  "Scan Next Gift";
 
 }
 
@@ -1317,6 +1342,7 @@ function scheduleBatch() {
 
     sendNextBatch();
 
+
     return;
 
   }
@@ -1467,6 +1493,7 @@ async function sendNextBatch() {
 
         }
 
+
         else {
 
           item.state =
@@ -1490,14 +1517,6 @@ async function sendNextBatch() {
 
   catch (error) {
 
-    /*
-    IMPORTANT:
-    Do not automatically resend a batch
-    after an uncertain confirmation.
-
-    Google may already have processed it.
-    */
-
     batchItems.forEach(
       function(item) {
 
@@ -1513,7 +1532,7 @@ async function sendNextBatch() {
 
 
     setStatus(
-      "A batch needs attention. Scanning can continue.",
+      "A saved batch needs attention. Scanning can continue.",
       "error"
     );
 
@@ -1527,7 +1546,6 @@ async function sendNextBatch() {
   saveLocalQueue();
 
   displayQueue();
-
 
   scheduleBatch();
 
@@ -1571,11 +1589,6 @@ function queueReturn(
   if (
     alreadyPending
   ) {
-
-    showScanConfirmation(
-      angel
-    );
-
 
     setStatus(
       angel +
@@ -1626,7 +1639,7 @@ function queueReturn(
 
   setStatus(
     angel +
-    " captured. NEXT GIFT.",
+    " captured. Ready for the next gift.",
     "ready"
   );
 
@@ -1642,7 +1655,20 @@ new QrScanner(
 
   video,
 
-  function(result) {
+  async function(result) {
+
+    if (
+      scanBeingProcessed
+    ) {
+
+      return;
+
+    }
+
+
+    scanBeingProcessed =
+    true;
+
 
     const angel =
     extractAngelCode(
@@ -1653,44 +1679,30 @@ new QrScanner(
     if (!angel) {
 
       setStatus(
-        "Invalid QR. Keep scanning.",
+        "Invalid QR code.",
         "error"
       );
 
 
-      return;
+      scanBeingProcessed =
+      false;
 
-    }
-
-
-    const now =
-    Date.now();
-
-
-    if (
-      angel ===
-      lastScannedAngel &&
-      now -
-      lastScanTime <
-      6000
-    ) {
 
       return;
 
     }
 
 
-    lastScannedAngel =
-    angel;
-
-
-    lastScanTime =
-    now;
+    await closeScanner();
 
 
     queueReturn(
       angel
     );
+
+
+    scanBeingProcessed =
+    false;
 
   },
 
@@ -1715,12 +1727,20 @@ new QrScanner(
 
 
 
-startButton.onclick =
+scanButton.onclick =
 async function() {
+
+  scanBeingProcessed =
+  false;
+
 
   scannerBox.classList.add(
     "active"
   );
+
+
+  scanButton.style.display =
+  "none";
 
 
   setStatus(
@@ -1734,12 +1754,8 @@ async function() {
     await scanner.start();
 
 
-    startButton.style.display =
-    "none";
-
-
     setStatus(
-      "Scanner ready. Scan the first gift.",
+      "Camera ready. Scan one gift.",
       "ready"
     );
 
@@ -1750,6 +1766,10 @@ async function() {
     scannerBox.classList.remove(
       "active"
     );
+
+
+    scanButton.style.display =
+    "block";
 
 
     setStatus(
@@ -1763,31 +1783,18 @@ async function() {
 
 
 
-stopButton.onclick =
+cancelScanButton.onclick =
 async function() {
 
-  try {
-
-    await scanner.stop();
-
-  }
-
-  catch (error) {
-
-  }
+  await closeScanner();
 
 
-  scannerBox.classList.remove(
-    "active"
-  );
-
-
-  startButton.style.display =
-  "block";
+  scanBeingProcessed =
+  false;
 
 
   setStatus(
-    "Scanner stopped. Pending returns will continue saving.",
+    "Scan cancelled.",
     "ready"
   );
 
@@ -1857,7 +1864,6 @@ restoreLocalQueue();
 displayQueue();
 
 scheduleBatch();
-
 
 </script>
 
