@@ -54,6 +54,41 @@ h2 {
   margin-top: 8px;
 }
 
+.landing-screen {
+  display: none;
+  text-align: center;
+}
+
+.landing-screen h1 {
+  margin-top: 10px;
+}
+
+.landing-message {
+  font-size: 19px;
+  line-height: 1.5;
+  margin: 18px 0 28px;
+}
+
+.landing-section {
+  margin-top: 20px;
+}
+
+.landing-button {
+  min-height: 68px;
+  font-size: 21px;
+}
+
+.return-button {
+  background: #f7f7f7;
+}
+
+.landing-note {
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #555;
+}
+
 button {
   width: 100%;
   min-height: 58px;
@@ -258,7 +293,57 @@ input {
 
 <div class="card">
 
-<div id="mainScreen">
+
+<div
+  id="landingScreen"
+  class="landing-screen">
+
+<h1>
+Giving Tree
+</h1>
+
+<p class="landing-message">
+Welcome to the Giving Tree.
+Choose what you would like to do below.
+</p>
+
+
+<div class="landing-section">
+
+<button
+  id="sponsorButton"
+  class="landing-button">
+Sponsor an Angel
+</button>
+
+<p class="landing-note">
+Sponsors can scan an Angel QR code or begin here to select an Angel.
+</p>
+
+</div>
+
+
+<div class="landing-section">
+
+<button
+  id="returnPortalButton"
+  class="landing-button return-button">
+Volunteer Return Portal
+</button>
+
+<p class="landing-note">
+For volunteers checking returned Giving Tree gifts.
+</p>
+
+</div>
+
+</div>
+
+
+
+<div
+  id="mainScreen"
+  style="display:none;">
 
 <h1>Giving Tree</h1>
 
@@ -443,53 +528,100 @@ const API_URL =
 "https://script.google.com/macros/s/AKfycbxZp0fNOC7QPDzvOrWCezJl8jKH0ZrSHGnmnEfnnuu44Sr8HrN9NFa-EZlz4GRrQVOF/exec";
 
 
+const landingScreen =
+document.getElementById(
+  "landingScreen"
+);
+
+const sponsorButton =
+document.getElementById(
+  "sponsorButton"
+);
+
+const returnPortalButton =
+document.getElementById(
+  "returnPortalButton"
+);
+
 const video =
-document.getElementById("qrVideo");
+document.getElementById(
+  "qrVideo"
+);
 
 const status =
-document.getElementById("status");
+document.getElementById(
+  "status"
+);
 
 const scannerBox =
-document.getElementById("scannerBox");
+document.getElementById(
+  "scannerBox"
+);
 
 const scanButton =
-document.getElementById("scanButton");
+document.getElementById(
+  "scanButton"
+);
 
 const cancelScanButton =
-document.getElementById("cancelScanButton");
+document.getElementById(
+  "cancelScanButton"
+);
 
 const angelList =
-document.getElementById("angelList");
+document.getElementById(
+  "angelList"
+);
 
 const completeButton =
-document.getElementById("completeButton");
+document.getElementById(
+  "completeButton"
+);
 
 const claimForm =
-document.getElementById("claimForm");
+document.getElementById(
+  "claimForm"
+);
 
 const reviewList =
-document.getElementById("reviewList");
+document.getElementById(
+  "reviewList"
+);
 
 const submitClaimButton =
-document.getElementById("submitClaimButton");
+document.getElementById(
+  "submitClaimButton"
+);
 
 const processingBox =
-document.getElementById("processingBox");
+document.getElementById(
+  "processingBox"
+);
 
 const processingMessage =
-document.getElementById("processingMessage");
+document.getElementById(
+  "processingMessage"
+);
 
 const mainScreen =
-document.getElementById("mainScreen");
+document.getElementById(
+  "mainScreen"
+);
 
 const successScreen =
-document.getElementById("successScreen");
+document.getElementById(
+  "successScreen"
+);
 
 const successMessage =
-document.getElementById("successMessage");
+document.getElementById(
+  "successMessage"
+);
 
 const startOverButton =
-document.getElementById("startOverButton");
+document.getElementById(
+  "startOverButton"
+);
 
 
 let angels =
@@ -512,7 +644,9 @@ false;
 function normalizeAngel(value) {
 
   const text =
-  String(value || "").trim();
+  String(
+    value || ""
+  ).trim();
 
 
   const match =
@@ -588,6 +722,40 @@ function removeAngelFromPageUrl() {
     url.search +
     url.hash
   );
+
+}
+
+
+
+function showLandingScreen() {
+
+  landingScreen.style.display =
+  "block";
+
+
+  mainScreen.style.display =
+  "none";
+
+
+  successScreen.style.display =
+  "none";
+
+}
+
+
+
+function showSponsorScreen() {
+
+  landingScreen.style.display =
+  "none";
+
+
+  successScreen.style.display =
+  "none";
+
+
+  mainScreen.style.display =
+  "block";
 
 }
 
@@ -1551,12 +1719,6 @@ async function processAngelFromUrl() {
   true;
 
 
-  /*
-  Remove the Angel from the visible URL
-  immediately so refreshing the page
-  does not try to add it again.
-  */
-
   removeAngelFromPageUrl();
 
 
@@ -1650,6 +1812,33 @@ new QrScanner(
   }
 
 );
+
+
+
+sponsorButton.onclick =
+function() {
+
+  showSponsorScreen();
+
+
+  status.textContent =
+  "Ready to scan an Angel.";
+
+
+  status.className =
+  "";
+
+};
+
+
+
+returnPortalButton.onclick =
+function() {
+
+  window.location.href =
+  "return.html";
+
+};
 
 
 
@@ -1965,6 +2154,10 @@ async function() {
     "none";
 
 
+    landingScreen.style.display =
+    "none";
+
+
     successScreen.style.display =
     "block";
 
@@ -2032,8 +2225,7 @@ function() {
   "none";
 
 
-  mainScreen.style.display =
-  "block";
+  showSponsorScreen();
 
 
   status.textContent =
@@ -2062,19 +2254,27 @@ function() {
 displayCart();
 
 
-/*
-=========================================
-NEW QR ENTRY FEATURE
-=========================================
-If the page was opened with:
+const angelFromUrl =
+getAngelFromPageUrl();
 
-?angel=Angel015
 
-the Angel will automatically be
-validated and added.
-*/
+if (
+  angelFromUrl ||
+  angels.length > 0
+) {
 
-processAngelFromUrl();
+  showSponsorScreen();
+
+
+  processAngelFromUrl();
+
+}
+
+else {
+
+  showLandingScreen();
+
+}
 
 </script>
 
